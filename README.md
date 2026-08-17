@@ -78,6 +78,12 @@ Two findings, both kept honestly:
   boosts from ratings and clamps refuted signals to zero, recovering 0.66.
   Personalization is now evidence-based, not assumed.
 
+**Phase 5 — FastAPI backend + web dashboard (done).** A self-contained page
+(no external assets) served by FastAPI shows the spoiler-free watch-list for any
+date window, with a sport filter and a per-event `excite × taste = score`
+breakdown. The calibration banner surfaces the Phase 4 finding to the viewer.
+API: `GET /api/meta`, `GET /api/watchlist?start=&end=&sport=&top=`.
+
 ```bash
 python -m venv .venv && ./.venv/bin/pip install -r requirements.txt
 ./.venv/bin/python scripts/build_dataset.py configs/f1.yaml    # -> data/f1_events.csv
@@ -85,11 +91,12 @@ python -m venv .venv && ./.venv/bin/pip install -r requirements.txt
 ./.venv/bin/python scripts/train_excitement.py                 # shared model + temporal eval
 ./.venv/bin/python scripts/make_ratings_template.py            # -> fill, save as data/my_ratings.csv
 ./.venv/bin/python scripts/evaluate.py                         # eval vs your ratings
-./.venv/bin/python scripts/watchlist.py 2024-04-19 2024-04-25  # spoiler-free watch-list
+./.venv/bin/python scripts/serve.py                            # dashboard -> http://127.0.0.1:8000
 ./.venv/bin/python -m pytest -q                                 # 25 tests, network-free + cached
 ```
 
-Roadmap: (5) web dashboard, (6) media vertical.
+Roadmap: (6) media vertical (anime/books/film) on the same `Recommender`
+interface — the second plug-in that proves the platform claim.
 
 ## Layout
 
@@ -108,6 +115,10 @@ scripts/build_dataset.py   # dispatches on config `vertical`
 scripts/train_excitement.py# trains + evaluates the shared model
 scripts/make_ratings_template.py # human-readable ratings template to fill
 scripts/evaluate.py        # eval every ranker against your real ratings
-scripts/watchlist.py       # end-to-end spoiler-free watch-list
+scripts/watchlist.py       # end-to-end spoiler-free watch-list (CLI)
+src/serving/service.py     # loads data + calibrated weights, answers queries
+src/serving/app.py         # FastAPI: /api/meta, /api/watchlist, dashboard
+web/index.html             # self-contained dashboard (no external assets)
+scripts/serve.py           # launch the dashboard
 tests/                     # 25 tests: features, interface, model, recommender
 ```

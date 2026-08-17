@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Worth Watching?</title>
+<style>
+  :root {
+    --bg: #f5f6f8; --card: #ffffff; --ink: #14161a; --muted: #6b7280;
+    --line: #e5e7eb; --accent: #2563eb; --f1: #e10600; --nba: #c8102e;
+    --must: #16a34a; --solid: #2563eb; --optional: #9ca3af; --bar: #dbeafe;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0e1015; --card: #171a21; --ink: #e7e9ee; --muted: #9aa1ad;
+      --line: #262b35; --accent: #60a5fa; --bar: #1e293b;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+    font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 24px 18px 60px; }
+  header h1 { margin: 0 0 4px; font-size: 26px; letter-spacing: -.02em; }
+  .sub { color: var(--muted); margin: 0 0 2px; }
+  .pill { display: inline-block; font-size: 11px; font-weight: 600; padding: 2px 8px;
+    border-radius: 999px; background: var(--bar); color: var(--accent); vertical-align: middle; }
+  .controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: end;
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    padding: 14px; margin: 18px 0; }
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+  input, select, button { font: inherit; padding: 8px 10px; border-radius: 8px;
+    border: 1px solid var(--line); background: var(--bg); color: var(--ink); }
+  button { background: var(--accent); color: #fff; border: none; font-weight: 600;
+    cursor: pointer; padding: 9px 16px; }
+  button:disabled { opacity: .6; cursor: default; }
+  .note { color: var(--muted); font-size: 13px; margin: 0 0 14px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    padding: 14px 16px; margin-bottom: 10px; display: grid;
+    grid-template-columns: 40px 1fr auto; gap: 4px 14px; align-items: center; }
+  .rank { grid-row: 1 / span 3; font-size: 22px; font-weight: 700; color: var(--muted); text-align: center; }
+  .title { font-weight: 600; }
+  .badges { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+  .badge { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 6px; color: #fff; text-transform: uppercase; }
+  .b-f1 { background: var(--f1); } .b-nba { background: var(--nba); }
+  .tier { font-size: 11px; font-weight: 700; text-transform: uppercase; }
+  .t-must-watch { color: var(--must); } .t-solid { color: var(--solid); } .t-optional { color: var(--optional); }
+  .reasons { grid-column: 2 / span 2; color: var(--muted); font-size: 13px; }
+  .score { grid-column: 2 / span 2; display: flex; align-items: center; gap: 10px; }
+  .track { flex: 1; height: 7px; background: var(--bar); border-radius: 999px; overflow: hidden; }
+  .fill { height: 100%; background: var(--accent); border-radius: 999px; }
+  .metrics { font-variant-numeric: tabular-nums; font-size: 12px; color: var(--muted); white-space: nowrap; }
+  .empty { color: var(--muted); text-align: center; padding: 40px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Worth Watching? <span class="pill">spoiler-free</span></h1>
+    <p class="sub">Your weekend, ranked by how much you'll actually enjoy it — across F1 &amp; NBA.</p>
+    <p class="sub" id="following"></p>
+  </header>
+
+  <div class="controls">
+    <div class="field"><label>From</label><input type="date" id="start"></div>
+    <div class="field"><label>To</label><input type="date" id="end"></div>
+    <div class="field"><label>Sport</label>
+      <select id="sport"><option value="all">All</option><option value="f1">F1</option><option value="nba">NBA</option></select>
+    </div>
+    <div class="field"><label>Top</label>
+      <select id="top"><option>15</option><option>25</option><option>50</option></select>
+    </div>
+    <button id="go">Build watch-list</button>
+  </div>
+
+  <p class="note" id="calnote"></p>
+  <div id="list"><p class="empty">Loading…</p></div>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+
+async function loadMeta() {
+  const m = await (await fetch('/api/meta')).json();
+  $('#start').value = m.default_start;
+  $('#end').value = m.default_end;
+  $('#start').min = $('#end').min = m.date_min;
+  $('#start').max = $('#end').max = m.date_max;
+  $('#following').textContent = 'Following: ' + m.followed.join(', ');
+  const w = m.weights;
+  $('#calnote').textContent = m.calibrated_from_ratings
+    ? `Taste weights calibrated from ${m.calibrated_from_ratings} of your ratings `
+      + `(followed +${w.followed_boost}, stakes +${w.stakes_boost}) — ranking follows excitement.`
+    : 'No ratings yet — using default taste prior.';
+  return m;
+}
+
+function card(it) {
+  const pct = Math.round(it.excitement * 100);
+  const reasons = it.reasons.length ? esc(it.reasons.join('  ·  ')) : 'no personal signal — ranked on excitement';
+  return `<div class="card">
+    <div class="rank">${it.rank}</div>
+    <div class="title">${esc(it.label)}</div>
+    <div class="badges">
+      <span class="badge b-${it.sport}">${it.sport}</span>
+      <span class="tier t-${it.tier.replace(/\s/g,'-')}">${esc(it.tier)}</span>
+      <span class="metrics">${esc(it.date)}</span>
+    </div>
+    <div class="reasons">${reasons}</div>
+    <div class="score">
+      <div class="track"><div class="fill" style="width:${pct}%"></div></div>
+      <span class="metrics">excite ${it.excitement.toFixed(2)} × taste ${it.taste.toFixed(2)} = <b>${it.score.toFixed(2)}</b></span>
+    </div>
+  </div>`;
+}
+
+async function build() {
+  const btn = $('#go'); btn.disabled = true; btn.textContent = 'Building…';
+  const q = new URLSearchParams({ start: $('#start').value, end: $('#end').value,
+    sport: $('#sport').value, top: $('#top').value });
+  try {
+    const data = await (await fetch('/api/watchlist?' + q)).json();
+    $('#list').innerHTML = data.items.length
+      ? data.items.map(card).join('')
+      : '<p class="empty">No events in this window. Try widening the dates.</p>';
+  } catch (e) {
+    $('#list').innerHTML = '<p class="empty">Failed to load. Is the server running?</p>';
+  }
+  btn.disabled = false; btn.textContent = 'Build watch-list';
+}
+
+$('#go').addEventListener('click', build);
+loadMeta().then(build);
+</script>
+</body>
+</html>
