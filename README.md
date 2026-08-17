@@ -84,19 +84,33 @@ date window, with a sport filter and a per-event `excite × taste = score`
 breakdown. The calibration banner surfaces the Phase 4 finding to the viewer.
 API: `GET /api/meta`, `GET /api/watchlist?start=&end=&sport=&top=`.
 
+**Phase 6 — media vertical (anime) on the same interface (done).** The payoff
+of Phase 1's abstraction: `AnimeRecommender` implements the exact same
+`Recommender` protocol as sports, but the engine is completely different —
+**content-based taste matching** instead of excitement. Catalog via Jikan
+(MyAnimeList, keyless). Mirrors the sports split so results read consistently:
+`excitement` = community quality prior, `personalization` = cosine of your
+rating-weighted genre/theme profile, reasons name the genres you like (never
+plot). Ratings come from a template or a MAL XML export
+(`scripts/import_mal.py`); `scripts/evaluate_anime.py` reuses the shared
+evaluation harness. **Two different scoring engines, one interface — the
+platform claim, proven.**
+
 ```bash
 python -m venv .venv && ./.venv/bin/pip install -r requirements.txt
-./.venv/bin/python scripts/build_dataset.py configs/f1.yaml    # -> data/f1_events.csv
-./.venv/bin/python scripts/build_dataset.py configs/nba.yaml   # -> data/nba_events.csv
+./.venv/bin/python scripts/build_dataset.py configs/f1.yaml    # sports data
+./.venv/bin/python scripts/build_dataset.py configs/nba.yaml
+./.venv/bin/python scripts/build_dataset.py configs/anime.yaml # media catalog (Jikan)
 ./.venv/bin/python scripts/train_excitement.py                 # shared model + temporal eval
-./.venv/bin/python scripts/make_ratings_template.py            # -> fill, save as data/my_ratings.csv
-./.venv/bin/python scripts/evaluate.py                         # eval vs your ratings
+./.venv/bin/python scripts/evaluate.py                         # sports: eval vs your ratings
+./.venv/bin/python scripts/recommend_anime.py                  # anime recommendations
 ./.venv/bin/python scripts/serve.py                            # dashboard -> http://127.0.0.1:8000
-./.venv/bin/python -m pytest -q                                 # 25 tests, network-free + cached
+./.venv/bin/python -m pytest -q                                 # 31 tests, network-free + cached
 ```
 
-Roadmap: (6) media vertical (anime/books/film) on the same `Recommender`
-interface — the second plug-in that proves the platform claim.
+All six phases complete. Next natural extensions: books (Goodreads CSV) and
+music (Last.fm) verticals — each is a new ingest + a `Recommender` on the same
+interface.
 
 ## Layout
 
@@ -116,9 +130,13 @@ scripts/train_excitement.py# trains + evaluates the shared model
 scripts/make_ratings_template.py # human-readable ratings template to fill
 scripts/evaluate.py        # eval every ranker against your real ratings
 scripts/watchlist.py       # end-to-end spoiler-free watch-list (CLI)
+src/media/anime_ingest.py  # anime: Jikan catalog -> tidy content table
+src/media/features.py      # genre/theme content vectors + quality prior
+src/media/recommender.py   # AnimeRecommender: content-based, same interface
 src/serving/service.py     # loads data + calibrated weights, answers queries
 src/serving/app.py         # FastAPI: /api/meta, /api/watchlist, dashboard
 web/index.html             # self-contained dashboard (no external assets)
 scripts/serve.py           # launch the dashboard
-tests/                     # 25 tests: features, interface, model, recommender
+scripts/recommend_anime.py # media watch-list; import_mal.py imports your list
+tests/                     # 31 tests across sports + media verticals
 ```

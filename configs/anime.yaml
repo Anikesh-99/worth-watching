@@ -1,0 +1,15 @@
+# Anime vertical (media) config — a sibling of f1.yaml / nba.yaml, proving the
+# pipeline generalizes past sports. Data via Jikan (MyAnimeList), keyless.
+
+vertical: anime
+
+cache_dir: data/anime_cache
+
+# How much of the top-ranked catalog to pull (25 titles per page).
+catalog_pages: 24
+
+# Optional genres you gravitate to, for cold-start before ratings exist.
+followed_entities:
+  - Action
+  - Psychological
+  - Fantasy

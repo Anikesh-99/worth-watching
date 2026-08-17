@@ -17,6 +17,7 @@ from pathlib import Path
 import yaml
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from src.media.anime_ingest import AnimeIngest  # noqa: E402
 from src.sports.ingest import F1Ingest  # noqa: E402
 from src.sports.nba_ingest import NBAIngest  # noqa: E402
 
@@ -35,7 +36,17 @@ def _build_nba(cfg: dict):
     return df, "lead_changes", chaos_cols
 
 
-BUILDERS = {"f1": _build_f1, "nba": _build_nba}
+def _build_anime(cfg: dict):
+    df = AnimeIngest(cache_dir=cfg.get("cache_dir", "data/anime_cache")).build(
+        pages=int(cfg.get("catalog_pages", 24)))
+    return df, "score", ["item_id", "title", "type", "year", "score", "genres"]
+
+
+BUILDERS = {"f1": _build_f1, "nba": _build_nba, "anime": _build_anime}
+
+# sports datasets are seasonal events; media is a catalog. Name the output and
+# the summary accordingly.
+_OUTPUT = {"f1": "f1_events.csv", "nba": "nba_events.csv", "anime": "anime_catalog.csv"}
 
 
 def main(config_path: str) -> None:
@@ -47,13 +58,14 @@ def main(config_path: str) -> None:
     df, sort_key, sample_cols = BUILDERS[vertical](cfg)
 
     Path("data").mkdir(exist_ok=True)
-    out = Path("data") / f"{vertical}_events.csv"
+    out = Path("data") / _OUTPUT[vertical]
     df.to_csv(out, index=False)
 
-    print(f"\nWrote {len(df)} events -> {out}")
-    print("\nPer-season counts:")
-    print(df.groupby("season").size().to_string())
-    print("\nSample (highest-excitement by '%s'):" % sort_key)
+    print(f"\nWrote {len(df)} rows -> {out}")
+    if "season" in df.columns:
+        print("\nPer-season counts:")
+        print(df.groupby("season").size().to_string())
+    print("\nSample (top by '%s'):" % sort_key)
     print(df.sort_values(sort_key, ascending=False)[sample_cols].head(6).to_string(index=False))
 
 
