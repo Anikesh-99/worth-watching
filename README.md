@@ -55,17 +55,41 @@ the followed team, and playoff status — never the result). A placeholder
 `data/my_ratings.csv` is seeded so it runs today; replace it with your own 1-5
 ratings and personalization/eval use them immediately.
 
+**Phase 4 — evaluation against real ratings (done).** Measured every ranker
+against 98 of the author's own 1-5 ratings (24 F1 + 74 NBA). Honest results:
+
+| ranker | Spearman vs your ratings |
+|---|---|
+| chronological (naive) | 0.18 |
+| competitiveness only | 0.65 |
+| **excitement index** | **0.66** |
+| personalized (assumed boosts) | 0.64 |
+| personalized (calibrated) | 0.66 |
+| Ridge / GBM trained on ratings (OOF) | 0.62 / 0.60 |
+
+Two findings, both kept honestly:
+- **Core hypothesis validated:** objective box-score excitement predicts real
+  enjoyment (Spearman 0.66); a small model trained on the ratings does *not*
+  beat the transparent index at n=98.
+- **Personalization hypothesis refuted for this user:** followed teams averaged
+  3.0 vs 3.4, and stakes correlated -0.22 with ratings — this author rates on
+  intrinsic excitement, not team loyalty. So the assumed "+35% for your team"
+  boost *hurt* (0.66 -> 0.64). The fix: `personalize.calibrate()` learns the
+  boosts from ratings and clamps refuted signals to zero, recovering 0.66.
+  Personalization is now evidence-based, not assumed.
+
 ```bash
 python -m venv .venv && ./.venv/bin/pip install -r requirements.txt
 ./.venv/bin/python scripts/build_dataset.py configs/f1.yaml    # -> data/f1_events.csv
 ./.venv/bin/python scripts/build_dataset.py configs/nba.yaml   # -> data/nba_events.csv
-./.venv/bin/python scripts/train_excitement.py                 # -> models/excitement_model.joblib
-./.venv/bin/python scripts/seed_placeholder_ratings.py         # -> data/my_ratings.csv (placeholder)
-./.venv/bin/python scripts/watchlist.py 2024-04-19 2024-04-25  # your spoiler-free watch-list
-./.venv/bin/python -m pytest -q                                 # 23 tests, network-free + cached
+./.venv/bin/python scripts/train_excitement.py                 # shared model + temporal eval
+./.venv/bin/python scripts/make_ratings_template.py            # -> fill, save as data/my_ratings.csv
+./.venv/bin/python scripts/evaluate.py                         # eval vs your ratings
+./.venv/bin/python scripts/watchlist.py 2024-04-19 2024-04-25  # spoiler-free watch-list
+./.venv/bin/python -m pytest -q                                 # 25 tests, network-free + cached
 ```
 
-Roadmap: (4) evaluation vs your ratings, (5) web dashboard, (6) media vertical.
+Roadmap: (5) web dashboard, (6) media vertical.
 
 ## Layout
 
@@ -82,6 +106,8 @@ src/sports/recommender.py  # SportRecommender: the two-stage Recommender
 configs/{f1,nba}.yaml      # sport-specific config (seasons, followed entities)
 scripts/build_dataset.py   # dispatches on config `vertical`
 scripts/train_excitement.py# trains + evaluates the shared model
+scripts/make_ratings_template.py # human-readable ratings template to fill
+scripts/evaluate.py        # eval every ranker against your real ratings
 scripts/watchlist.py       # end-to-end spoiler-free watch-list
-tests/                     # 23 tests: features, interface, model, recommender
+tests/                     # 25 tests: features, interface, model, recommender
 ```

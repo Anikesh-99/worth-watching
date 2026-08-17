@@ -8,7 +8,7 @@ import pandas as pd
 
 from src.core.features import normalize_f1, normalize_nba, unify
 from src.core.interfaces import Item, UserProfile
-from src.sports.personalize import personalize
+from src.sports.personalize import calibrate, personalize
 from src.sports.recommender import SportRecommender
 
 # outcome words a spoiler-free reason must never contain
@@ -65,6 +65,29 @@ def test_scoring_is_spoiler_free_and_bounded() -> None:
         assert s.personalization >= 1.0
         blob = " ".join(s.reasons).lower()
         assert not any(b in blob for b in BANNED), f"spoiler leaked: {s.reasons}"
+
+
+def test_calibrate_clamps_refuted_signal_to_zero() -> None:
+    # Followed team (BOS) is rated LOWER than others, stakes anti-correlate.
+    df = pd.DataFrame({
+        "entities": [["BOS", "X"], ["BOS", "Y"], ["A", "B"], ["C", "D"]],
+        "stakes": [1.0, 1.0, 0.0, 0.0],
+        "rating": [2, 2, 5, 4],  # followed/high-stakes = worse
+    })
+    w = calibrate(df, UserProfile(followed_entities={"BOS"}))
+    assert w.followed_boost == 0.0
+    assert w.stakes_boost == 0.0
+
+
+def test_calibrate_rewards_supported_signal() -> None:
+    # Here the followed team IS rated higher -> positive (clamped) boost.
+    df = pd.DataFrame({
+        "entities": [["BOS", "X"], ["BOS", "Y"], ["A", "B"], ["C", "D"]],
+        "stakes": [0.0, 0.0, 0.0, 0.0],
+        "rating": [5, 5, 2, 2],
+    })
+    w = calibrate(df, UserProfile(followed_entities={"BOS"}))
+    assert w.followed_boost > 0.0
 
 
 def test_rank_orders_by_score_desc() -> None:

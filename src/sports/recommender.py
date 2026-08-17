@@ -16,7 +16,7 @@ import pandas as pd
 from src.core.excitement import ExcitementIndex
 from src.core.features import UNIFIED_FEATURES
 from src.core.interfaces import Item, Ranked, Scored, UserProfile
-from src.sports.personalize import personalize
+from src.sports.personalize import DEFAULT_WEIGHTS, TasteWeights, personalize
 
 # An excitement scorer maps a features frame -> a [0, 1] score per row.
 Scorer = Callable[[pd.DataFrame], "pd.Series[float]"]
@@ -32,10 +32,11 @@ class SportRecommender:
     """Implements the `Recommender` protocol over a unified events table."""
 
     def __init__(self, unified: pd.DataFrame, scorer: Scorer | None = None,
-                 vertical: str = "sports") -> None:
+                 vertical: str = "sports", weights: TasteWeights = DEFAULT_WEIGHTS) -> None:
         self.unified = unified.reset_index(drop=True)
         self.scorer = scorer or ExcitementIndex().score
         self.vertical = vertical
+        self.weights = weights
 
     # -- stage 1: candidate generation ------------------------------------
 
@@ -62,7 +63,7 @@ class SportRecommender:
         excite = pd.Series(self.scorer(feats)).to_numpy()
         scored = []
         for it, ex in zip(items, excite):
-            mult, reasons = personalize(it, user)
+            mult, reasons = personalize(it, user, self.weights)
             reasons = [f"{_tier(float(ex))} · {it.meta['label']} ({it.vertical.upper()})", *reasons]
             scored.append(Scored(item=it, excitement=float(ex), personalization=float(mult), reasons=reasons))
         return scored
