@@ -42,9 +42,10 @@
   .title { font-weight: 600; }
   .badges { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
   .badge { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 6px; color: #fff; text-transform: uppercase; }
-  .b-f1 { background: var(--f1); } .b-nba { background: var(--nba); } .b-anime { background: #7c3aed; }
+  .b-f1 { background: var(--f1); } .b-nba { background: var(--nba); }
+  .b-anime { background: #7c3aed; } .b-book { background: #0d9488; }
   .tier { font-size: 11px; font-weight: 700; text-transform: uppercase; }
-  .t-must-watch { color: var(--must); } .t-solid, .t-worth-it { color: var(--solid); }
+  .t-must-watch, .t-must-read { color: var(--must); } .t-solid, .t-worth-it { color: var(--solid); }
   .t-optional, .t-maybe { color: var(--optional); }
   .modes { display: inline-flex; gap: 4px; background: var(--card); border: 1px solid var(--line);
     border-radius: 999px; padding: 4px; margin: 14px 0 4px; }
@@ -70,6 +71,7 @@
   <div class="modes">
     <button id="mode-sports" class="on">🏁 Sports</button>
     <button id="mode-anime">🍿 Anime</button>
+    <button id="mode-book">📚 Books</button>
   </div>
 
   <div class="controls">
@@ -92,41 +94,42 @@
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
 let META = null, MODE = 'sports';
+const MODES = ['sports', 'anime', 'book'];
+const MEDIA_LABEL = { anime: 'Recommend anime', book: 'Recommend books' };
+const MEDIA_NOUN = { anime: 'title', book: 'book' };
 
 async function loadMeta() {
-  const m = await (await fetch('/api/meta')).json();
-  META = m;
-  $('#start').value = m.default_start;
-  $('#end').value = m.default_end;
-  $('#start').min = $('#end').min = m.date_min;
-  $('#start').max = $('#end').max = m.date_max;
-  $('#following').textContent = 'Following: ' + m.followed.join(', ');
-  if (!m.anime) { $('#mode-anime').style.display = 'none'; }
-  return m;
+  META = await (await fetch('/api/meta')).json();
+  $('#start').value = META.default_start; $('#end').value = META.default_end;
+  $('#start').min = $('#end').min = META.date_min;
+  $('#start').max = $('#end').max = META.date_max;
+  $('#following').textContent = 'Following: ' + META.followed.join(', ');
+  const media = META.media || {};
+  if (!media.anime) $('#mode-anime').style.display = 'none';
+  if (!media.book) $('#mode-book').style.display = 'none';
 }
 
 function setNote() {
-  const w = META.weights;
   if (MODE === 'sports') {
+    const w = META.weights;
     $('#calnote').textContent = META.calibrated_from_ratings
       ? `Taste weights calibrated from ${META.calibrated_from_ratings} of your ratings `
         + `(followed +${w.followed_boost}, stakes +${w.stakes_boost}) — ranking follows excitement.`
-      : 'No ratings yet — using default taste prior.';
+      : `Default taste prior (followed +${w.followed_boost}, stakes +${w.stakes_boost}).`;
   } else {
-    const a = META.anime;
-    $('#calnote').textContent = a.ratings
-      ? `Content-based on ${a.ratings} of your anime ratings across a ${a.catalog_size}-title catalog.`
-      : `Cold-start from genres [${a.cold_start_genres.join(', ')}] over a ${a.catalog_size}-title catalog `
-        + `— add ratings (scripts/import_mal.py) to personalize.`;
+    const m = (META.media || {})[MODE] || {}, noun = MEDIA_NOUN[MODE] || 'item';
+    $('#calnote').textContent = m.ratings
+      ? `Content-based on ${m.ratings} of your ${MODE} ratings across a ${m.catalog_size}-${noun} catalog.`
+      : `Cold-start from [${(m.cold_start || []).join(', ')}] over a ${m.catalog_size}-${noun} catalog `
+        + `— content-based taste matching.`;
   }
 }
 
 function setMode(mode) {
   MODE = mode;
-  $('#mode-sports').classList.toggle('on', mode === 'sports');
-  $('#mode-anime').classList.toggle('on', mode === 'anime');
+  MODES.forEach(x => $('#mode-' + x).classList.toggle('on', mode === x));
   document.querySelectorAll('.sports-only').forEach(e => e.style.display = mode === 'sports' ? '' : 'none');
-  $('#go').textContent = mode === 'sports' ? 'Build watch-list' : 'Recommend anime';
+  $('#go').textContent = mode === 'sports' ? 'Build watch-list' : (MEDIA_LABEL[mode] || 'Recommend');
   setNote();
   build();
 }
@@ -155,12 +158,12 @@ async function build() {
   const url = MODE === 'sports'
     ? '/api/watchlist?' + new URLSearchParams({ start: $('#start').value, end: $('#end').value,
         sport: $('#sport').value, top: $('#top').value })
-    : '/api/anime?' + new URLSearchParams({ top: $('#top').value });
+    : '/api/media?' + new URLSearchParams({ vertical: MODE, top: $('#top').value });
   try {
     const data = await (await fetch(url)).json();
     const empty = MODE === 'sports'
       ? 'No events in this window. Try widening the dates.'
-      : 'No anime to recommend.';
+      : 'Nothing to recommend.';
     $('#list').innerHTML = data.items.length ? data.items.map(card).join('') : `<p class="empty">${empty}</p>`;
   } catch (e) {
     $('#list').innerHTML = '<p class="empty">Failed to load. Is the server running?</p>';
@@ -169,8 +172,7 @@ async function build() {
 }
 
 $('#go').addEventListener('click', build);
-$('#mode-sports').addEventListener('click', () => setMode('sports'));
-$('#mode-anime').addEventListener('click', () => setMode('anime'));
+MODES.forEach(x => $('#mode-' + x).addEventListener('click', () => setMode(x)));
 loadMeta().then(() => { setNote(); build(); });
 </script>
 </body>

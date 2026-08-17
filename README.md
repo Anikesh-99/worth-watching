@@ -3,7 +3,7 @@
 **▶ Live demo: https://anikesh-99.github.io/worth-watching/**
 
 A personalized recommendation **platform** that answers, spoiler-free:
-*"What's actually worth my time tonight?"* — across live sport and anime.
+*"What's actually worth my time tonight?"* — across live sport, anime, and books.
 
 > The live demo is a static build (`web_static/`): the real Python pipeline's
 > scores are precomputed into JSON, and the browser only filters and ranks. It
@@ -13,9 +13,10 @@ A personalized recommendation **platform** that answers, spoiler-free:
 
 Two very different recommendation engines sit behind **one `Recommender`
 interface**: a sports **excitement** ranker (F1 + NBA) and a **content-based**
-anime ranker. A sports match and an unwatched anime are the same problem shape —
-score an item's personalized worth-your-time-ness, then rank a candidate set —
-which is what makes this a platform rather than two scripts.
+media ranker (anime + books, sharing one `ContentRecommender`). A sports match,
+an unwatched anime, and an unread book are the same problem shape — score an
+item's personalized worth-your-time-ness, then rank a candidate set — which is
+what makes this a platform rather than three scripts.
 
 ## Architecture
 
@@ -26,13 +27,13 @@ which is what makes this a platform rather than two scripts.
                       │  → rank                      │
                       └───────────────┬─────────────┘
               ┌───────────────────────┼────────────────────────┐
-       SportRecommender                              AnimeRecommender
+       SportRecommender                    ContentRecommender (Anime · Books)
    excitement × personalization                content quality × taste match
         │           │                                 │         │
-   ExcitementIndex  calibrate(ratings)         genre/theme     rating-weighted
-   + LightGBM       (evidence-based)           vectors         taste profile
+   ExcitementIndex  calibrate(ratings)         subject/genre   rating-weighted
+   + LightGBM       (evidence-based)           tag vectors     taste profile
         │                                            │
-   FastF1 (F1) · ESPN (NBA)                    Jikan / MyAnimeList
+   FastF1 (F1) · ESPN (NBA)             Jikan (anime) · Open Library (books)
         └──────────────┬─────────────────────────────┘
              shared: evaluation harness (temporal split · NDCG · MRR · Spearman)
                        UserProfile · Item · Scored · FastAPI dashboard
@@ -42,8 +43,8 @@ See [the design doc](docs/design.md) for the full plan.
 
 ## Dashboard
 
-One UI, two engines. **Sports** mode ranks a date-window watch-list by
-excitement × your calibrated taste; **Anime** mode switches to content-based
+One UI, three modes. **Sports** ranks a date-window watch-list by excitement ×
+your calibrated taste; **Anime** and **Books** switch to content-based
 recommendations — same cards, same spoiler-free reasons, different engine.
 
 | Sports watch-list | Anime recommendations |
@@ -129,33 +130,35 @@ card renderer shows a sports watch-list or content-based anime recommendations.
 API: `GET /api/meta`, `GET /api/watchlist?start=&end=&sport=&top=`,
 `GET /api/anime?top=`.
 
-**Phase 6 — media vertical (anime) on the same interface (done).** The payoff
-of Phase 1's abstraction: `AnimeRecommender` implements the exact same
-`Recommender` protocol as sports, but the engine is completely different —
-**content-based taste matching** instead of excitement. Catalog via Jikan
-(MyAnimeList, keyless). Mirrors the sports split so results read consistently:
-`excitement` = community quality prior, `personalization` = cosine of your
-rating-weighted genre/theme profile, reasons name the genres you like (never
-plot). Ratings come from a template or a MAL XML export
-(`scripts/import_mal.py`); `scripts/evaluate_anime.py` reuses the shared
-evaluation harness. **Two different scoring engines, one interface — the
-platform claim, proven.**
+**Phase 6 — media verticals (anime + books) on the same interface (done).**
+The payoff of Phase 1's abstraction: one `ContentRecommender` implements the
+exact same `Recommender` protocol as sports, but the engine is completely
+different — **content-based taste matching** instead of excitement.
+`AnimeRecommender` and `BookRecommender` are thin subclasses (genres/themes vs
+subjects). Catalogs via Jikan (anime) and Open Library (books), both keyless.
+Mirrors the sports split: `excitement` = community quality prior,
+`personalization` = cosine of your rating-weighted tag profile, reasons name the
+genres/subjects you like (never plot). Ratings come from a Goodreads CSV export
+(`scripts/import_goodreads.py`) / MAL export / a template; the shared harness
+evaluates both. **Different scoring engines, one interface — the platform claim,
+proven across three domains.**
 
 ```bash
 python -m venv .venv && ./.venv/bin/pip install -r requirements.txt
 ./.venv/bin/python scripts/build_dataset.py configs/f1.yaml    # sports data
 ./.venv/bin/python scripts/build_dataset.py configs/nba.yaml
-./.venv/bin/python scripts/build_dataset.py configs/anime.yaml # media catalog (Jikan)
+./.venv/bin/python scripts/build_dataset.py configs/anime.yaml # anime catalog (Jikan)
+./.venv/bin/python scripts/build_dataset.py configs/books.yaml # book catalog (Open Library)
 ./.venv/bin/python scripts/train_excitement.py                 # shared model + temporal eval
 ./.venv/bin/python scripts/evaluate.py                         # sports: eval vs your ratings
 ./.venv/bin/python scripts/recommend_anime.py                  # anime recommendations
+./.venv/bin/python scripts/recommend_books.py                  # book recommendations
 ./.venv/bin/python scripts/serve.py                            # dashboard -> http://127.0.0.1:8000
-./.venv/bin/python -m pytest -q                                 # 31 tests, network-free + cached
+./.venv/bin/python -m pytest -q                                 # 36 tests, network-free + cached
 ```
 
-All six phases complete. Next natural extensions: books (Goodreads CSV) and
-music (Last.fm) verticals — each is a new ingest + a `Recommender` on the same
-interface.
+All six phases complete, three verticals live. Next natural extension: a music
+vertical (Spotify) — a new ingest + a `Recommender` on the same interface.
 
 ## Layout
 
@@ -175,13 +178,16 @@ scripts/train_excitement.py# trains + evaluates the shared model
 scripts/make_ratings_template.py # human-readable ratings template to fill
 scripts/evaluate.py        # eval every ranker against your real ratings
 scripts/watchlist.py       # end-to-end spoiler-free watch-list (CLI)
+src/media/content.py       # ContentRecommender: shared content-based engine
 src/media/anime_ingest.py  # anime: Jikan catalog -> tidy content table
-src/media/features.py      # genre/theme content vectors + quality prior
-src/media/recommender.py   # AnimeRecommender: content-based, same interface
+src/media/recommender.py   # AnimeRecommender (thin subclass)
+src/media/book_ingest.py   # books: Open Library catalog -> tidy content table
+src/media/book_recommender.py # BookRecommender (thin subclass)
 src/serving/service.py     # loads data + calibrated weights, answers queries
-src/serving/app.py         # FastAPI: /api/meta, /api/watchlist, dashboard
-web/index.html             # self-contained dashboard (no external assets)
+src/serving/app.py         # FastAPI: /api/meta, /api/watchlist, /api/media
+web/index.html             # self-contained 3-mode dashboard (no external assets)
 scripts/serve.py           # launch the dashboard
-scripts/recommend_anime.py # media watch-list; import_mal.py imports your list
-tests/                     # 31 tests across sports + media verticals
+scripts/recommend_{anime,books}.py # media recs; import_{mal,goodreads}.py import lists
+scripts/build_static.py    # bake scores -> web_static/ for GitHub Pages
+tests/                     # 36 tests across sports + media verticals
 ```

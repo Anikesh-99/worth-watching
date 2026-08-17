@@ -47,7 +47,10 @@ def watchlist(
             "weights": svc.meta()["weights"]}
 
 
-@app.get("/api/anime")
-def anime(top: int = Query(25, ge=1, le=100)) -> dict:
+@app.get("/api/media")
+def media(
+    vertical: str = Query(..., pattern="^(anime|book)$"),
+    top: int = Query(25, ge=1, le=100),
+) -> dict:
     svc = _service()
-    return {"items": svc.anime(top), "meta": svc.meta().get("anime")}
+    return {"items": svc.media_recs(vertical, top), "meta": svc.meta()["media"].get(vertical)}

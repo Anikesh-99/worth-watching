@@ -41,9 +41,10 @@
   .title { font-weight: 600; }
   .badges { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
   .badge { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 6px; color: #fff; text-transform: uppercase; }
-  .b-f1 { background: var(--f1); } .b-nba { background: var(--nba); } .b-anime { background: #7c3aed; }
+  .b-f1 { background: var(--f1); } .b-nba { background: var(--nba); }
+  .b-anime { background: #7c3aed; } .b-book { background: #0d9488; }
   .tier { font-size: 11px; font-weight: 700; text-transform: uppercase; }
-  .t-must-watch { color: var(--must); } .t-solid, .t-worth-it { color: var(--solid); }
+  .t-must-watch, .t-must-read { color: var(--must); } .t-solid, .t-worth-it { color: var(--solid); }
   .t-optional, .t-maybe { color: var(--optional); }
   .modes { display: inline-flex; gap: 4px; background: var(--card); border: 1px solid var(--line);
     border-radius: 999px; padding: 4px; margin: 14px 0 4px; }
@@ -64,13 +65,14 @@
 <div class="wrap">
   <header>
     <h1>Worth Watching? <span class="pill">spoiler-free</span></h1>
-    <p class="sub">What's worth your time tonight — one recommender across F1, NBA &amp; anime.</p>
+    <p class="sub">What's worth your time tonight — one recommender across F1, NBA, anime &amp; books.</p>
     <p class="sub" id="following"></p>
   </header>
 
   <div class="modes">
     <button id="mode-sports" class="on">🏁 Sports</button>
     <button id="mode-anime">🍿 Anime</button>
+    <button id="mode-book">📚 Books</button>
   </div>
 
   <div class="controls">
@@ -95,19 +97,26 @@
 <script>
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
-let META = null, SPORTS = [], ANIME = [], MODE = 'sports';
+const MODES = ['sports', 'anime', 'book'];
+const MEDIA_LABEL = { anime: 'Recommend anime', book: 'Recommend books' };
+const MEDIA_NOUN = { anime: 'title', book: 'book' };
+let META = null, SPORTS = [], MEDIA = { anime: [], book: [] }, MODE = 'sports';
 
 async function loadData() {
-  [META, SPORTS, ANIME] = await Promise.all([
+  const [meta, sports, anime, book] = await Promise.all([
     fetch('./data/meta.json').then(r => r.json()),
     fetch('./data/sports.json').then(r => r.json()),
-    fetch('./data/anime.json').then(r => r.json()),
+    fetch('./data/anime.json').then(r => r.json()).catch(() => []),
+    fetch('./data/book.json').then(r => r.json()).catch(() => []),
   ]);
+  META = meta; SPORTS = sports; MEDIA = { anime, book };
   $('#start').value = META.default_start; $('#end').value = META.default_end;
   $('#start').min = $('#end').min = META.date_min;
   $('#start').max = $('#end').max = META.date_max;
   $('#following').textContent = 'Following: ' + META.followed.join(', ');
-  if (!META.anime || !ANIME.length) $('#mode-anime').style.display = 'none';
+  const media = META.media || {};
+  if (!media.anime || !MEDIA.anime.length) $('#mode-anime').style.display = 'none';
+  if (!media.book || !MEDIA.book.length) $('#mode-book').style.display = 'none';
 }
 
 function setNote() {
@@ -116,18 +125,17 @@ function setNote() {
     $('#calnote').textContent = `Default taste prior (followed +${w.followed_boost}, `
       + `stakes +${w.stakes_boost}). In the full app, weights calibrate to your ratings.`;
   } else {
-    const a = META.anime;
-    $('#calnote').textContent = `Cold-start from genres [${a.cold_start_genres.join(', ')}] over a `
-      + `${a.catalog_size}-title catalog — content-based taste matching.`;
+    const m = (META.media || {})[MODE] || {}, noun = MEDIA_NOUN[MODE] || 'item';
+    $('#calnote').textContent = `Cold-start from [${(m.cold_start || []).join(', ')}] over a `
+      + `${m.catalog_size}-${noun} catalog — content-based taste matching.`;
   }
 }
 
 function setMode(mode) {
   MODE = mode;
-  $('#mode-sports').classList.toggle('on', mode === 'sports');
-  $('#mode-anime').classList.toggle('on', mode === 'anime');
+  MODES.forEach(x => $('#mode-' + x).classList.toggle('on', mode === x));
   document.querySelectorAll('.sports-only').forEach(e => e.style.display = mode === 'sports' ? '' : 'none');
-  $('#go').textContent = mode === 'sports' ? 'Build watch-list' : 'Recommend anime';
+  $('#go').textContent = mode === 'sports' ? 'Build watch-list' : (MEDIA_LABEL[mode] || 'Recommend');
   setNote(); build();
 }
 
@@ -145,7 +153,7 @@ function card(it) {
     <div class="reasons">${reasons}</div>
     <div class="score">
       <div class="track"><div class="fill" style="width:${pct}%"></div></div>
-      <span class="metrics">excite ${it.excitement.toFixed(2)} × taste ${it.taste.toFixed(2)} = <b>${it.score.toFixed(2)}</b></span>
+      <span class="metrics">score ${it.excitement.toFixed(2)} × taste ${it.taste.toFixed(2)} = <b>${it.score.toFixed(2)}</b></span>
     </div>
   </div>`;
 }
@@ -157,19 +165,17 @@ function build() {
     const s = $('#start').value, e = $('#end').value, sport = $('#sport').value;
     items = SPORTS
       .filter(x => x.date >= s && x.date <= e && (sport === 'all' || x.sport === sport))
-      .sort((a, b) => b.score - a.score)
-      .slice(0, top)
+      .sort((a, b) => b.score - a.score).slice(0, top)
       .map((x, i) => ({ ...x, rank: i + 1 }));
     if (!items.length) { $('#list').innerHTML = '<p class="empty">No events in this window. Try widening the dates.</p>'; return; }
   } else {
-    items = ANIME.slice(0, top);
+    items = (MEDIA[MODE] || []).slice(0, top);
   }
   $('#list').innerHTML = items.map(card).join('');
 }
 
 $('#go').addEventListener('click', build);
-$('#mode-sports').addEventListener('click', () => setMode('sports'));
-$('#mode-anime').addEventListener('click', () => setMode('anime'));
+MODES.forEach(x => $('#mode-' + x).addEventListener('click', () => setMode(x)));
 loadData().then(() => { setNote(); build(); }).catch(() => {
   $('#list').innerHTML = '<p class="empty">Failed to load data bundle.</p>';
 });

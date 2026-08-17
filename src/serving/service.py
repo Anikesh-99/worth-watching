@@ -15,6 +15,7 @@ import pandas as pd
 
 from src.core.features import unify
 from src.core.profile import load_user_profile
+from src.media.book_recommender import BookRecommender
 from src.media.recommender import AnimeRecommender
 from src.sports.personalize import DEFAULT_WEIGHTS, calibrate
 from src.sports.recommender import SportRecommender
@@ -39,25 +40,30 @@ class WatchlistService:
 
         self.rec = SportRecommender(self.df, weights=self.weights)
 
-        # Media vertical (optional): loaded only if a catalog has been built.
-        self.anime_rec = None
-        self.anime_user = None
-        catalog_path = d / "anime_catalog.csv"
-        if catalog_path.exists():
-            catalog = pd.read_csv(catalog_path)
-            self.anime_rec = AnimeRecommender(catalog)
-            self.anime_user = load_user_profile(["configs/anime.yaml"], str(d / "my_anime_ratings.csv"))
+        # Media verticals (optional): loaded only if their catalog was built.
+        # Each entry: vertical -> (recommender, user_profile).
+        self.media: dict[str, tuple] = {}
+        media_specs = [
+            ("anime", "anime_catalog.csv", "configs/anime.yaml", "my_anime_ratings.csv", AnimeRecommender),
+            ("book", "books_catalog.csv", "configs/books.yaml", "my_books_ratings.csv", BookRecommender),
+        ]
+        for vertical, catalog_name, config, ratings_name, RecClass in media_specs:
+            cp = d / catalog_name
+            if cp.exists():
+                rec = RecClass(pd.read_csv(cp))
+                user = load_user_profile([config], str(d / ratings_name))
+                self.media[vertical] = (rec, user)
 
     # -- metadata for the UI ---------------------------------------------
 
     def meta(self) -> dict:
         default_start, default_end = self._busiest_window(days=14)
-        anime = None
-        if self.anime_rec is not None:
-            anime = {
-                "catalog_size": len(self.anime_rec.df),
-                "ratings": len(self.anime_user.ratings),
-                "cold_start_genres": sorted(self.anime_user.followed_entities),
+        media = {}
+        for vertical, (rec, user) in self.media.items():
+            media[vertical] = {
+                "catalog_size": len(rec.df),
+                "ratings": len(user.ratings),
+                "cold_start": sorted(user.followed_entities),
             }
         return {
             "followed": sorted(self.user.followed_entities),
@@ -69,23 +75,26 @@ class WatchlistService:
             "counts": self.df.groupby("sport").size().to_dict(),
             "default_start": default_start,
             "default_end": default_end,
-            "anime": anime,
+            "media": media,
         }
 
-    # -- media watch-list -------------------------------------------------
+    # -- media recommendations (anime / book) ----------------------------
 
-    def anime(self, top: int = 25) -> list[dict]:
-        if self.anime_rec is None:
+    def media_recs(self, vertical: str, top: int = 25) -> list[dict]:
+        entry = self.media.get(vertical)
+        if entry is None:
             return []
+        rec, user = entry
         out = []
-        for r in self.anime_rec.recommend(self.anime_user, top=top):
-            sc = r.scored
+        for r in rec.recommend(user, top=top):
+            sc, it = r.scored, r.scored.item
+            sub = it.meta.get("type") or it.meta.get("author") or ""
             out.append({
                 "rank": r.rank,
-                "item_id": sc.item.item_id,
-                "sport": "anime",
-                "label": sc.item.meta["label"],
-                "date": (sc.item.meta.get("type") or "") + (f" · {sc.item.when.year}" if sc.item.when else ""),
+                "item_id": it.item_id,
+                "sport": vertical,
+                "label": it.meta["label"],
+                "date": (str(sub)[:22] + (f" · {it.when.year}" if it.when and it.when.year > 1400 else "")).strip(" ·"),
                 "score": round(sc.score, 3),
                 "excitement": round(sc.excitement, 3),
                 "taste": round(sc.personalization, 3),

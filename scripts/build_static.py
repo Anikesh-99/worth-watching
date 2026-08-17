@@ -24,6 +24,7 @@ import pandas as pd
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from src.core.features import unify  # noqa: E402
 from src.core.profile import load_user_profile  # noqa: E402
+from src.media.book_recommender import BookRecommender  # noqa: E402
 from src.media.recommender import AnimeRecommender  # noqa: E402
 from src.sports.personalize import DEFAULT_WEIGHTS  # noqa: E402
 from src.sports.recommender import SportRecommender  # noqa: E402
@@ -77,22 +78,28 @@ def main() -> None:
     sports = [_scored_dict(s, 0) for s in scored]
     (OUT / "sports.json").write_text(json.dumps(sports))
 
-    # ---- anime: cold-start recommendations -----------------------------
-    anime = []
-    anime_meta = None
-    cat = _load_csv("data/anime_catalog.csv")
-    if cat is not None:
-        au = load_user_profile(["configs/anime.yaml"], "data/__no_ratings__.csv")
-        arec = AnimeRecommender(cat)
-        ranked = arec.recommend(au, top=60)
-        for r in ranked:
-            d = _scored_dict(r.scored, r.rank)
-            it = r.scored.item
-            d["date"] = (it.meta.get("type") or "") + (f" · {it.when.year}" if it.when else "")
-            anime.append(d)
-        anime_meta = {"catalog_size": len(cat), "ratings": 0,
-                      "cold_start_genres": sorted(au.followed_entities)}
-    (OUT / "anime.json").write_text(json.dumps(anime))
+    # ---- media verticals: cold-start recommendations -------------------
+    media_specs = [
+        ("anime", "data/anime_catalog.csv", "configs/anime.yaml", AnimeRecommender),
+        ("book", "data/books_catalog.csv", "configs/books.yaml", BookRecommender),
+    ]
+    media_meta = {}
+    counts = {}
+    for vertical, catalog_path, config, RecClass in media_specs:
+        cat = _load_csv(catalog_path)
+        recs = []
+        if cat is not None:
+            mu = load_user_profile([config], "data/__no_ratings__.csv")
+            for r in RecClass(cat).recommend(mu, top=60):
+                d = _scored_dict(r.scored, r.rank)
+                it = r.scored.item
+                sub = it.meta.get("type") or it.meta.get("author") or ""
+                d["date"] = (str(sub)[:22] + (f" · {it.when.year}" if it.when and it.when.year > 1400 else "")).strip(" ·")
+                recs.append(d)
+            media_meta[vertical] = {"catalog_size": len(cat), "ratings": 0,
+                                    "cold_start": sorted(mu.followed_entities)}
+        (OUT / f"{vertical}.json").write_text(json.dumps(recs))
+        counts[vertical] = len(recs)
 
     # ---- meta ----------------------------------------------------------
     ds, de = _busiest_window(df)
@@ -105,12 +112,12 @@ def main() -> None:
         "date_max": df["date"].max().strftime("%Y-%m-%d"),
         "counts": {k: int(v) for k, v in df.groupby("sport").size().items()},
         "default_start": ds, "default_end": de,
-        "anime": anime_meta,
+        "media": media_meta,
     }
     (OUT / "meta.json").write_text(json.dumps(meta))
 
     print(f"Wrote static bundle -> {OUT}/")
-    print(f"  sports events: {len(sports)} | anime recs: {len(anime)} | window {ds}..{de}")
+    print(f"  sports events: {len(sports)} | media: {counts} | window {ds}..{de}")
 
 
 def _load_csv(path: str) -> pd.DataFrame | None:
