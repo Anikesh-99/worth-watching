@@ -19,6 +19,7 @@ import pandas as pd
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from src.core.features import unify  # noqa: E402
 from src.core.profile import load_user_profile  # noqa: E402
+from src.sports.personalize import DEFAULT_WEIGHTS, calibrate  # noqa: E402
 from src.sports.recommender import SportRecommender  # noqa: E402
 
 DEFAULT_START, DEFAULT_END = "2024-04-19", "2024-04-25"  # an NBA-playoffs + F1 week
@@ -35,7 +36,17 @@ def main(start: str = DEFAULT_START, end: str = DEFAULT_END) -> None:
         sys.exit("Build datasets first (scripts/build_dataset.py).")
 
     user = load_user_profile(["configs/f1.yaml", "configs/nba.yaml"])
-    rec = SportRecommender(df)
+
+    # Use taste weights calibrated from your ratings when available; else the prior.
+    weights = DEFAULT_WEIGHTS
+    if user.ratings:
+        rated = df[df["item_id"].isin(user.ratings)].copy()
+        rated["rating"] = rated["item_id"].map(user.ratings)
+        weights = calibrate(rated, user)
+        print(f"  (taste weights calibrated from {len(rated)} ratings: "
+              f"followed={weights.followed_boost}, stakes={weights.stakes_boost})")
+
+    rec = SportRecommender(df, weights=weights)
     s, e = datetime.fromisoformat(start), datetime.fromisoformat(end)
     ranked = rec.watchlist(s, e, user, top=15)
 
