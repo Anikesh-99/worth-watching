@@ -1,0 +1,17 @@
+# NBA vertical configuration — a sibling of f1.yaml, proving the pipeline is
+# config-driven rather than F1-specific. Seasons are labelled by Finals year
+# (2024 == the 2023-24 season).
+
+vertical: nba
+
+cache_dir: data/nba_cache
+
+seasons:
+  train: [2022, 2023]
+  test: [2024]
+
+# Teams you follow, for the personalization layer's spoiler-free reasons.
+followed_entities:
+  - BOS
+  - DEN
+  - OKC
