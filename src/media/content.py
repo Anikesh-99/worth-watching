@@ -36,9 +36,12 @@ def augment_catalog(catalog: pd.DataFrame, rated: pd.DataFrame) -> pd.DataFrame:
     the taste vector use every rating, not just the ones we happen to stock.
     """
     extra = rated[~rated["item_id"].isin(catalog["item_id"])].copy()
+    if extra.empty:
+        return catalog.reset_index(drop=True)
     for c in catalog.columns:
         if c not in extra.columns:
-            extra[c] = None
+            # object cols -> "" (so they aren't all-NA); numeric -> NaN.
+            extra[c] = "" if catalog[c].dtype == object else np.nan
     extra = extra[catalog.columns]
     return pd.concat([catalog, extra], ignore_index=True).drop_duplicates("item_id").reset_index(drop=True)
 
