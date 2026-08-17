@@ -1,12 +1,36 @@
 # Worth Watching?
 
 A personalized recommendation **platform** that answers, spoiler-free:
-*"Which of this weekend's events is actually worth my two hours?"*
+*"What's actually worth my time tonight?"* — across live sport and anime.
 
-Sports (F1 first) is the flagship vertical; the same `Recommender` interface
-is built to accept a cross-media vertical (anime / books / film) as a second
-plug-in. See [`docs` design](../.claude/plans/wise-snuggling-corbato.md) for
-the full plan.
+Two very different recommendation engines sit behind **one `Recommender`
+interface**: a sports **excitement** ranker (F1 + NBA) and a **content-based**
+anime ranker. A sports match and an unwatched anime are the same problem shape —
+score an item's personalized worth-your-time-ness, then rank a candidate set —
+which is what makes this a platform rather than two scripts.
+
+## Architecture
+
+```
+                      ┌─────────────────────────────┐
+                      │  Recommender (Protocol)      │
+                      │  generate_candidates → score │
+                      │  → rank                      │
+                      └───────────────┬─────────────┘
+              ┌───────────────────────┼────────────────────────┐
+       SportRecommender                              AnimeRecommender
+   excitement × personalization                content quality × taste match
+        │           │                                 │         │
+   ExcitementIndex  calibrate(ratings)         genre/theme     rating-weighted
+   + LightGBM       (evidence-based)           vectors         taste profile
+        │                                            │
+   FastF1 (F1) · ESPN (NBA)                    Jikan / MyAnimeList
+        └──────────────┬─────────────────────────────┘
+             shared: evaluation harness (temporal split · NDCG · MRR · Spearman)
+                       UserProfile · Item · Scored · FastAPI dashboard
+```
+
+See [the design doc](../.claude/plans/wise-snuggling-corbato.md) for the full plan.
 
 ## Why this design is interesting
 
