@@ -45,3 +45,9 @@ def watchlist(
     svc = _service()
     return {"items": svc.watchlist(start, end, sport, top),
             "weights": svc.meta()["weights"]}
+
+
+@app.get("/api/anime")
+def anime(top: int = Query(25, ge=1, le=100)) -> dict:
+    svc = _service()
+    return {"items": svc.anime(top), "meta": svc.meta().get("anime")}

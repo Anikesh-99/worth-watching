@@ -82,7 +82,10 @@ Two findings, both kept honestly:
 (no external assets) served by FastAPI shows the spoiler-free watch-list for any
 date window, with a sport filter and a per-event `excite × taste = score`
 breakdown. The calibration banner surfaces the Phase 4 finding to the viewer.
-API: `GET /api/meta`, `GET /api/watchlist?start=&end=&sport=&top=`.
+A **Sports / Anime mode toggle** unifies both verticals in one UI — the same
+card renderer shows a sports watch-list or content-based anime recommendations.
+API: `GET /api/meta`, `GET /api/watchlist?start=&end=&sport=&top=`,
+`GET /api/anime?top=`.
 
 **Phase 6 — media vertical (anime) on the same interface (done).** The payoff
 of Phase 1's abstraction: `AnimeRecommender` implements the exact same

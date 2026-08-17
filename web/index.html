@@ -42,9 +42,15 @@
   .title { font-weight: 600; }
   .badges { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
   .badge { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 6px; color: #fff; text-transform: uppercase; }
-  .b-f1 { background: var(--f1); } .b-nba { background: var(--nba); }
+  .b-f1 { background: var(--f1); } .b-nba { background: var(--nba); } .b-anime { background: #7c3aed; }
   .tier { font-size: 11px; font-weight: 700; text-transform: uppercase; }
-  .t-must-watch { color: var(--must); } .t-solid { color: var(--solid); } .t-optional { color: var(--optional); }
+  .t-must-watch { color: var(--must); } .t-solid, .t-worth-it { color: var(--solid); }
+  .t-optional, .t-maybe { color: var(--optional); }
+  .modes { display: inline-flex; gap: 4px; background: var(--card); border: 1px solid var(--line);
+    border-radius: 999px; padding: 4px; margin: 14px 0 4px; }
+  .modes button { background: transparent; color: var(--muted); border: none; padding: 6px 16px;
+    border-radius: 999px; font-weight: 600; }
+  .modes button.on { background: var(--accent); color: #fff; }
   .reasons { grid-column: 2 / span 2; color: var(--muted); font-size: 13px; }
   .score { grid-column: 2 / span 2; display: flex; align-items: center; gap: 10px; }
   .track { flex: 1; height: 7px; background: var(--bar); border-radius: 999px; overflow: hidden; }
@@ -61,10 +67,15 @@
     <p class="sub" id="following"></p>
   </header>
 
+  <div class="modes">
+    <button id="mode-sports" class="on">🏁 Sports</button>
+    <button id="mode-anime">🍿 Anime</button>
+  </div>
+
   <div class="controls">
-    <div class="field"><label>From</label><input type="date" id="start"></div>
-    <div class="field"><label>To</label><input type="date" id="end"></div>
-    <div class="field"><label>Sport</label>
+    <div class="field sports-only"><label>From</label><input type="date" id="start"></div>
+    <div class="field sports-only"><label>To</label><input type="date" id="end"></div>
+    <div class="field sports-only"><label>Sport</label>
       <select id="sport"><option value="all">All</option><option value="f1">F1</option><option value="nba">NBA</option></select>
     </div>
     <div class="field"><label>Top</label>
@@ -80,20 +91,44 @@
 <script>
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+let META = null, MODE = 'sports';
 
 async function loadMeta() {
   const m = await (await fetch('/api/meta')).json();
+  META = m;
   $('#start').value = m.default_start;
   $('#end').value = m.default_end;
   $('#start').min = $('#end').min = m.date_min;
   $('#start').max = $('#end').max = m.date_max;
   $('#following').textContent = 'Following: ' + m.followed.join(', ');
-  const w = m.weights;
-  $('#calnote').textContent = m.calibrated_from_ratings
-    ? `Taste weights calibrated from ${m.calibrated_from_ratings} of your ratings `
-      + `(followed +${w.followed_boost}, stakes +${w.stakes_boost}) — ranking follows excitement.`
-    : 'No ratings yet — using default taste prior.';
+  if (!m.anime) { $('#mode-anime').style.display = 'none'; }
   return m;
+}
+
+function setNote() {
+  const w = META.weights;
+  if (MODE === 'sports') {
+    $('#calnote').textContent = META.calibrated_from_ratings
+      ? `Taste weights calibrated from ${META.calibrated_from_ratings} of your ratings `
+        + `(followed +${w.followed_boost}, stakes +${w.stakes_boost}) — ranking follows excitement.`
+      : 'No ratings yet — using default taste prior.';
+  } else {
+    const a = META.anime;
+    $('#calnote').textContent = a.ratings
+      ? `Content-based on ${a.ratings} of your anime ratings across a ${a.catalog_size}-title catalog.`
+      : `Cold-start from genres [${a.cold_start_genres.join(', ')}] over a ${a.catalog_size}-title catalog `
+        + `— add ratings (scripts/import_mal.py) to personalize.`;
+  }
+}
+
+function setMode(mode) {
+  MODE = mode;
+  $('#mode-sports').classList.toggle('on', mode === 'sports');
+  $('#mode-anime').classList.toggle('on', mode === 'anime');
+  document.querySelectorAll('.sports-only').forEach(e => e.style.display = mode === 'sports' ? '' : 'none');
+  $('#go').textContent = mode === 'sports' ? 'Build watch-list' : 'Recommend anime';
+  setNote();
+  build();
 }
 
 function card(it) {
@@ -116,22 +151,27 @@ function card(it) {
 }
 
 async function build() {
-  const btn = $('#go'); btn.disabled = true; btn.textContent = 'Building…';
-  const q = new URLSearchParams({ start: $('#start').value, end: $('#end').value,
-    sport: $('#sport').value, top: $('#top').value });
+  const btn = $('#go'); const label = btn.textContent; btn.disabled = true; btn.textContent = 'Loading…';
+  const url = MODE === 'sports'
+    ? '/api/watchlist?' + new URLSearchParams({ start: $('#start').value, end: $('#end').value,
+        sport: $('#sport').value, top: $('#top').value })
+    : '/api/anime?' + new URLSearchParams({ top: $('#top').value });
   try {
-    const data = await (await fetch('/api/watchlist?' + q)).json();
-    $('#list').innerHTML = data.items.length
-      ? data.items.map(card).join('')
-      : '<p class="empty">No events in this window. Try widening the dates.</p>';
+    const data = await (await fetch(url)).json();
+    const empty = MODE === 'sports'
+      ? 'No events in this window. Try widening the dates.'
+      : 'No anime to recommend.';
+    $('#list').innerHTML = data.items.length ? data.items.map(card).join('') : `<p class="empty">${empty}</p>`;
   } catch (e) {
     $('#list').innerHTML = '<p class="empty">Failed to load. Is the server running?</p>';
   }
-  btn.disabled = false; btn.textContent = 'Build watch-list';
+  btn.disabled = false; btn.textContent = label;
 }
 
 $('#go').addEventListener('click', build);
-loadMeta().then(build);
+$('#mode-sports').addEventListener('click', () => setMode('sports'));
+$('#mode-anime').addEventListener('click', () => setMode('anime'));
+loadMeta().then(() => { setNote(); build(); });
 </script>
 </body>
 </html>

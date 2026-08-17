@@ -15,6 +15,7 @@ import pandas as pd
 
 from src.core.features import unify
 from src.core.profile import load_user_profile
+from src.media.recommender import AnimeRecommender
 from src.sports.personalize import DEFAULT_WEIGHTS, calibrate
 from src.sports.recommender import SportRecommender
 
@@ -38,10 +39,26 @@ class WatchlistService:
 
         self.rec = SportRecommender(self.df, weights=self.weights)
 
+        # Media vertical (optional): loaded only if a catalog has been built.
+        self.anime_rec = None
+        self.anime_user = None
+        catalog_path = d / "anime_catalog.csv"
+        if catalog_path.exists():
+            catalog = pd.read_csv(catalog_path)
+            self.anime_rec = AnimeRecommender(catalog)
+            self.anime_user = load_user_profile(["configs/anime.yaml"], str(d / "my_anime_ratings.csv"))
+
     # -- metadata for the UI ---------------------------------------------
 
     def meta(self) -> dict:
         default_start, default_end = self._busiest_window(days=14)
+        anime = None
+        if self.anime_rec is not None:
+            anime = {
+                "catalog_size": len(self.anime_rec.df),
+                "ratings": len(self.anime_user.ratings),
+                "cold_start_genres": sorted(self.anime_user.followed_entities),
+            }
         return {
             "followed": sorted(self.user.followed_entities),
             "weights": {"followed_boost": self.weights.followed_boost,
@@ -52,7 +69,30 @@ class WatchlistService:
             "counts": self.df.groupby("sport").size().to_dict(),
             "default_start": default_start,
             "default_end": default_end,
+            "anime": anime,
         }
+
+    # -- media watch-list -------------------------------------------------
+
+    def anime(self, top: int = 25) -> list[dict]:
+        if self.anime_rec is None:
+            return []
+        out = []
+        for r in self.anime_rec.recommend(self.anime_user, top=top):
+            sc = r.scored
+            out.append({
+                "rank": r.rank,
+                "item_id": sc.item.item_id,
+                "sport": "anime",
+                "label": sc.item.meta["label"],
+                "date": (sc.item.meta.get("type") or "") + (f" · {sc.item.when.year}" if sc.item.when else ""),
+                "score": round(sc.score, 3),
+                "excitement": round(sc.excitement, 3),
+                "taste": round(sc.personalization, 3),
+                "tier": sc.reasons[0].split(" · ")[0],
+                "reasons": sc.reasons[1:],
+            })
+        return out
 
     def _busiest_window(self, days: int) -> tuple[str, str]:
         dates = self.df["date"].sort_values().dt.normalize()
