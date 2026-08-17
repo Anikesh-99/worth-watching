@@ -1,0 +1,10 @@
+.venv/
+__pycache__/
+*.pyc
+data/f1cache/
+data/nba_cache/
+data/*.csv
+data/*.parquet
+models/
+.pytest_cache/
+.DS_Store

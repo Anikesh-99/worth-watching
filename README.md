@@ -1,0 +1,87 @@
+# Worth Watching?
+
+A personalized recommendation **platform** that answers, spoiler-free:
+*"Which of this weekend's events is actually worth my two hours?"*
+
+Sports (F1 first) is the flagship vertical; the same `Recommender` interface
+is built to accept a cross-media vertical (anime / books / film) as a second
+plug-in. See [`docs` design](../.claude/plans/wise-snuggling-corbato.md) for
+the full plan.
+
+## Why this design is interesting
+
+There is no free "I enjoyed this game" label. So the system separates two
+models:
+
+- an **objective excitement model** — labels come free from the box score
+  (final margin, position changes, DNFs, stakes) and generalize across users;
+- a thin **personalization layer** — your followed drivers/teams and a small
+  set of your own ratings.
+
+Ranking is framed as **learning-to-rank** and evaluated with a **temporal
+split** (train on past seasons, test on the latest) — never a random split.
+
+## Status
+
+**Phase 1 — data foundation (done): two sport verticals, one tidy schema.**
+- **F1** via [FastF1](https://docs.fastf1.dev/) (keyless, cached) → one row
+  per race: DNFs, winner margin, positions moved, biggest climb.
+- **NBA** via ESPN's keyless scoreboard → one row per game: final margin,
+  overtime, lead changes, come-from-behind, all from per-quarter linescores.
+
+NBA (~1,300 games/season) supplies the training volume F1's ~24 races/year
+can't, and proves the ingest contract generalizes across sports.
+
+**Phase 2 — shared excitement model (done).** One normalization layer maps
+both sports onto a shared feature vocabulary (`competitiveness`, `volatility`,
+`comeback`, `chaos`, `upset`, `stakes`), and a single LightGBM LambdaRank model
+ranks across all 4,261 events. Evaluated with a temporal split (train ≤2023,
+test 2024).
+
+Honest result: the model is bootstrapped on a transparent weighted **index**
+(no human ratings yet), so its ~1.0 agreement with that index is expected, not
+a quality claim. The meaningful, non-circular finding is on NBA (large ranking
+queries): naive chronological NDCG@10 **0.56** → single-feature **0.92**,
+i.e. multi-signal ranking clearly helps. F1's per-month queries are too small
+(1-3 races) for reliable NDCG. Cross-sport feature importance is dominated by
+`competitiveness`, then `volatility`/`comeback`. Real quality evaluation
+arrives in Phase 4 against the user's own ratings.
+
+**Phase 3 — recommender + spoiler-free watch-list (done).** The two-stage
+`Recommender` (candidate generation → excitement × personalization → rank) runs
+across both sports in one ranked list. Personalization boosts followed teams
+and high-stakes games; **reasons are spoiler-free** (they name the matchup,
+the followed team, and playoff status — never the result). A placeholder
+`data/my_ratings.csv` is seeded so it runs today; replace it with your own 1-5
+ratings and personalization/eval use them immediately.
+
+```bash
+python -m venv .venv && ./.venv/bin/pip install -r requirements.txt
+./.venv/bin/python scripts/build_dataset.py configs/f1.yaml    # -> data/f1_events.csv
+./.venv/bin/python scripts/build_dataset.py configs/nba.yaml   # -> data/nba_events.csv
+./.venv/bin/python scripts/train_excitement.py                 # -> models/excitement_model.joblib
+./.venv/bin/python scripts/seed_placeholder_ratings.py         # -> data/my_ratings.csv (placeholder)
+./.venv/bin/python scripts/watchlist.py 2024-04-19 2024-04-25  # your spoiler-free watch-list
+./.venv/bin/python -m pytest -q                                 # 23 tests, network-free + cached
+```
+
+Roadmap: (4) evaluation vs your ratings, (5) web dashboard, (6) media vertical.
+
+## Layout
+
+```
+src/core/interfaces.py     # Recommender protocol shared by every vertical
+src/core/features.py       # per-sport -> unified excitement feature vocabulary
+src/core/excitement.py     # transparent index + shared LightGBM LambdaRank model
+src/core/evaluation.py     # temporal split + NDCG / MRR / Spearman
+src/core/profile.py        # load followed entities + ratings -> UserProfile
+src/sports/ingest.py       # F1: FastF1 -> tidy per-race dataframe
+src/sports/nba_ingest.py   # NBA: ESPN scoreboard -> tidy per-game dataframe
+src/sports/personalize.py  # spoiler-free taste multiplier + reasons
+src/sports/recommender.py  # SportRecommender: the two-stage Recommender
+configs/{f1,nba}.yaml      # sport-specific config (seasons, followed entities)
+scripts/build_dataset.py   # dispatches on config `vertical`
+scripts/train_excitement.py# trains + evaluates the shared model
+scripts/watchlist.py       # end-to-end spoiler-free watch-list
+tests/                     # 23 tests: features, interface, model, recommender
+```
