@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Worth Watching?</title>
+<style>
+  :root {
+    --bg: #f5f6f8; --card: #ffffff; --ink: #14161a; --muted: #6b7280;
+    --line: #e5e7eb; --accent: #2563eb; --f1: #e10600; --nba: #c8102e;
+    --must: #16a34a; --solid: #2563eb; --optional: #9ca3af; --bar: #dbeafe;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0e1015; --card: #171a21; --ink: #e7e9ee; --muted: #9aa1ad;
+      --line: #262b35; --accent: #60a5fa; --bar: #1e293b;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+    font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 24px 18px 60px; }
+  header h1 { margin: 0 0 4px; font-size: 26px; letter-spacing: -.02em; }
+  .sub { color: var(--muted); margin: 0 0 2px; }
+  .pill { display: inline-block; font-size: 11px; font-weight: 600; padding: 2px 8px;
+    border-radius: 999px; background: var(--bar); color: var(--accent); vertical-align: middle; }
+  .controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: end;
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    padding: 14px; margin: 18px 0; }
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+  input, select, button { font: inherit; padding: 8px 10px; border-radius: 8px;
+    border: 1px solid var(--line); background: var(--bg); color: var(--ink); }
+  button { background: var(--accent); color: #fff; border: none; font-weight: 600;
+    cursor: pointer; padding: 9px 16px; }
+  .note { color: var(--muted); font-size: 13px; margin: 0 0 14px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    padding: 14px 16px; margin-bottom: 10px; display: grid;
+    grid-template-columns: 40px 1fr auto; gap: 4px 14px; align-items: center; }
+  .rank { grid-row: 1 / span 3; font-size: 22px; font-weight: 700; color: var(--muted); text-align: center; }
+  .title { font-weight: 600; }
+  .badges { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+  .badge { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 6px; color: #fff; text-transform: uppercase; }
+  .b-f1 { background: var(--f1); } .b-nba { background: var(--nba); } .b-anime { background: #7c3aed; }
+  .tier { font-size: 11px; font-weight: 700; text-transform: uppercase; }
+  .t-must-watch { color: var(--must); } .t-solid, .t-worth-it { color: var(--solid); }
+  .t-optional, .t-maybe { color: var(--optional); }
+  .modes { display: inline-flex; gap: 4px; background: var(--card); border: 1px solid var(--line);
+    border-radius: 999px; padding: 4px; margin: 14px 0 4px; }
+  .modes button { background: transparent; color: var(--muted); border: none; padding: 6px 16px;
+    border-radius: 999px; font-weight: 600; }
+  .modes button.on { background: var(--accent); color: #fff; }
+  .reasons { grid-column: 2 / span 2; color: var(--muted); font-size: 13px; }
+  .score { grid-column: 2 / span 2; display: flex; align-items: center; gap: 10px; }
+  .track { flex: 1; height: 7px; background: var(--bar); border-radius: 999px; overflow: hidden; }
+  .fill { height: 100%; background: var(--accent); border-radius: 999px; }
+  .metrics { font-variant-numeric: tabular-nums; font-size: 12px; color: var(--muted); white-space: nowrap; }
+  .empty { color: var(--muted); text-align: center; padding: 40px; }
+  .foot { color: var(--muted); font-size: 12px; margin-top: 28px; text-align: center; }
+  .foot a { color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Worth Watching? <span class="pill">spoiler-free</span></h1>
+    <p class="sub">What's worth your time tonight — one recommender across F1, NBA &amp; anime.</p>
+    <p class="sub" id="following"></p>
+  </header>
+
+  <div class="modes">
+    <button id="mode-sports" class="on">🏁 Sports</button>
+    <button id="mode-anime">🍿 Anime</button>
+  </div>
+
+  <div class="controls">
+    <div class="field sports-only"><label>From</label><input type="date" id="start"></div>
+    <div class="field sports-only"><label>To</label><input type="date" id="end"></div>
+    <div class="field sports-only"><label>Sport</label>
+      <select id="sport"><option value="all">All</option><option value="f1">F1</option><option value="nba">NBA</option></select>
+    </div>
+    <div class="field"><label>Top</label>
+      <select id="top"><option>15</option><option>25</option><option>50</option></select>
+    </div>
+    <button id="go">Build watch-list</button>
+  </div>
+
+  <p class="note" id="calnote"></p>
+  <div id="list"><p class="empty">Loading…</p></div>
+
+  <p class="foot">Static demo — ML scores precomputed by the Python pipeline; browser only filters &amp; ranks.
+    No personal ratings shipped. <a href="https://github.com/Anikesh-99/worth-watching">Source &amp; full project ›</a></p>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+let META = null, SPORTS = [], ANIME = [], MODE = 'sports';
+
+async function loadData() {
+  [META, SPORTS, ANIME] = await Promise.all([
+    fetch('./data/meta.json').then(r => r.json()),
+    fetch('./data/sports.json').then(r => r.json()),
+    fetch('./data/anime.json').then(r => r.json()),
+  ]);
+  $('#start').value = META.default_start; $('#end').value = META.default_end;
+  $('#start').min = $('#end').min = META.date_min;
+  $('#start').max = $('#end').max = META.date_max;
+  $('#following').textContent = 'Following: ' + META.followed.join(', ');
+  if (!META.anime || !ANIME.length) $('#mode-anime').style.display = 'none';
+}
+
+function setNote() {
+  if (MODE === 'sports') {
+    const w = META.weights;
+    $('#calnote').textContent = `Default taste prior (followed +${w.followed_boost}, `
+      + `stakes +${w.stakes_boost}). In the full app, weights calibrate to your ratings.`;
+  } else {
+    const a = META.anime;
+    $('#calnote').textContent = `Cold-start from genres [${a.cold_start_genres.join(', ')}] over a `
+      + `${a.catalog_size}-title catalog — content-based taste matching.`;
+  }
+}
+
+function setMode(mode) {
+  MODE = mode;
+  $('#mode-sports').classList.toggle('on', mode === 'sports');
+  $('#mode-anime').classList.toggle('on', mode === 'anime');
+  document.querySelectorAll('.sports-only').forEach(e => e.style.display = mode === 'sports' ? '' : 'none');
+  $('#go').textContent = mode === 'sports' ? 'Build watch-list' : 'Recommend anime';
+  setNote(); build();
+}
+
+function card(it) {
+  const pct = Math.round(it.excitement * 100);
+  const reasons = it.reasons.length ? esc(it.reasons.join('  ·  ')) : 'no personal signal — ranked on excitement';
+  return `<div class="card">
+    <div class="rank">${it.rank}</div>
+    <div class="title">${esc(it.label)}</div>
+    <div class="badges">
+      <span class="badge b-${it.sport}">${it.sport}</span>
+      <span class="tier t-${it.tier.replace(/\s/g,'-')}">${esc(it.tier)}</span>
+      <span class="metrics">${esc(it.date)}</span>
+    </div>
+    <div class="reasons">${reasons}</div>
+    <div class="score">
+      <div class="track"><div class="fill" style="width:${pct}%"></div></div>
+      <span class="metrics">excite ${it.excitement.toFixed(2)} × taste ${it.taste.toFixed(2)} = <b>${it.score.toFixed(2)}</b></span>
+    </div>
+  </div>`;
+}
+
+function build() {
+  const top = parseInt($('#top').value, 10);
+  let items;
+  if (MODE === 'sports') {
+    const s = $('#start').value, e = $('#end').value, sport = $('#sport').value;
+    items = SPORTS
+      .filter(x => x.date >= s && x.date <= e && (sport === 'all' || x.sport === sport))
+      .sort((a, b) => b.score - a.score)
+      .slice(0, top)
+      .map((x, i) => ({ ...x, rank: i + 1 }));
+    if (!items.length) { $('#list').innerHTML = '<p class="empty">No events in this window. Try widening the dates.</p>'; return; }
+  } else {
+    items = ANIME.slice(0, top);
+  }
+  $('#list').innerHTML = items.map(card).join('');
+}
+
+$('#go').addEventListener('click', build);
+$('#mode-sports').addEventListener('click', () => setMode('sports'));
+$('#mode-anime').addEventListener('click', () => setMode('anime'));
+loadData().then(() => { setNote(); build(); }).catch(() => {
+  $('#list').innerHTML = '<p class="empty">Failed to load data bundle.</p>';
+});
+</script>
+</body>
+</html>
