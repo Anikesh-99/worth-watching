@@ -18,6 +18,7 @@ import yaml
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from src.media.anime_ingest import AnimeIngest  # noqa: E402
+from src.media.book_ingest import BookIngest  # noqa: E402
 from src.sports.ingest import F1Ingest  # noqa: E402
 from src.sports.nba_ingest import NBAIngest  # noqa: E402
 
@@ -42,11 +43,18 @@ def _build_anime(cfg: dict):
     return df, "score", ["item_id", "title", "type", "year", "score", "genres"]
 
 
-BUILDERS = {"f1": _build_f1, "nba": _build_nba, "anime": _build_anime}
+def _build_book(cfg: dict):
+    df = BookIngest(cache_dir=cfg.get("cache_dir", "data/book_cache")).build(
+        subjects=cfg["subjects"], limit=int(cfg.get("limit_per_subject", 50)))
+    return df, "editions", ["item_id", "title", "author", "year", "editions", "subjects"]
+
+
+BUILDERS = {"f1": _build_f1, "nba": _build_nba, "anime": _build_anime, "book": _build_book}
 
 # sports datasets are seasonal events; media is a catalog. Name the output and
 # the summary accordingly.
-_OUTPUT = {"f1": "f1_events.csv", "nba": "nba_events.csv", "anime": "anime_catalog.csv"}
+_OUTPUT = {"f1": "f1_events.csv", "nba": "nba_events.csv",
+           "anime": "anime_catalog.csv", "book": "books_catalog.csv"}
 
 
 def main(config_path: str) -> None:

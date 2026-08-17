@@ -1,0 +1,32 @@
+# Books vertical (media) config — a sibling of anime.yaml, sharing the same
+# ContentRecommender engine. Catalog via Open Library (keyless), ratings via a
+# Goodreads CSV export (scripts/import_goodreads.py).
+
+vertical: book
+
+cache_dir: data/book_cache
+
+# Broad subjects to assemble a candidate catalog from.
+subjects:
+  - fiction
+  - fantasy
+  - science_fiction
+  - mystery
+  - thriller
+  - romance
+  - historical_fiction
+  - horror
+  - philosophy
+  - biography
+  - poetry
+  - young_adult
+  - classics
+  - adventure
+
+limit_per_subject: 60
+
+# Cold-start subjects (before your Goodreads ratings are imported).
+followed_entities:
+  - Fantasy
+  - Science Fiction
+  - Fiction

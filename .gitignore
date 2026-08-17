@@ -4,6 +4,7 @@ __pycache__/
 data/f1cache/
 data/nba_cache/
 data/anime_cache/
+data/book_cache/
 data/*.csv
 data/*.parquet
 models/
