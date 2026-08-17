@@ -1,7 +1,15 @@
 # Worth Watching?
 
+**▶ Live demo: https://anikesh-99.github.io/worth-watching/**
+
 A personalized recommendation **platform** that answers, spoiler-free:
 *"What's actually worth my time tonight?"* — across live sport and anime.
+
+> The live demo is a static build (`web_static/`): the real Python pipeline's
+> scores are precomputed into JSON, and the browser only filters and ranks. It
+> runs with the default taste prior / cold-start (no personal ratings shipped);
+> run the FastAPI app locally (`make serve`) for the full, ratings-calibrated
+> experience.
 
 Two very different recommendation engines sit behind **one `Recommender`
 interface**: a sports **excitement** ranker (F1 + NBA) and a **content-based**
