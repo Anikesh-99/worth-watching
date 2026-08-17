@@ -28,6 +28,21 @@ def _unit(v: np.ndarray) -> np.ndarray:
     return v / n if n > 0 else v
 
 
+def augment_catalog(catalog: pd.DataFrame, rated: pd.DataFrame) -> pd.DataFrame:
+    """Add rated items (which carry their own tag columns) to the catalog.
+
+    A user's rated titles usually aren't all in the catalog, yet their tags are
+    what define taste. Merging them in (columns they lack filled with None) lets
+    the taste vector use every rating, not just the ones we happen to stock.
+    """
+    extra = rated[~rated["item_id"].isin(catalog["item_id"])].copy()
+    for c in catalog.columns:
+        if c not in extra.columns:
+            extra[c] = None
+    extra = extra[catalog.columns]
+    return pd.concat([catalog, extra], ignore_index=True).drop_duplicates("item_id").reset_index(drop=True)
+
+
 class ContentRecommender:
     # --- override these per vertical ---
     vertical = "content"

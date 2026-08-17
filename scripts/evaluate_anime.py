@@ -20,22 +20,26 @@ import pandas as pd
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from src.core.evaluation import ndcg_grouped, spearman  # noqa: E402
 from src.core.interfaces import UserProfile  # noqa: E402
+from src.media.content import augment_catalog  # noqa: E402
 from src.media.recommender import AnimeRecommender  # noqa: E402
 
 
 def main() -> None:
     if not Path("data/my_anime_ratings.csv").exists():
-        sys.exit("No data/my_anime_ratings.csv. Fill the template or import from MAL first.")
+        sys.exit("No data/my_anime_ratings.csv. Import from AniList or fill the template first.")
     cat = pd.read_csv("data/anime_catalog.csv")
     ratings = pd.read_csv("data/my_anime_ratings.csv")
     ratings["item_id"] = ratings["item_id"].astype(str)
 
+    # If ratings carry their own tags (AniList), merge them so every rated title
+    # can be scored — not just the ones in our small catalog.
+    if {"genres", "themes"} & set(ratings.columns):
+        cat = augment_catalog(cat, ratings)
     rec = AnimeRecommender(cat)
     in_cat = ratings[ratings["item_id"].isin(cat["item_id"])].reset_index(drop=True)
-    print(f"rated anime in catalog: {len(in_cat)} / {len(ratings)} "
-          f"(only in-catalog titles can be scored)")
+    print(f"scorable rated anime: {len(in_cat)} / {len(ratings)}")
     if len(in_cat) < 5:
-        sys.exit("Need at least ~5 rated titles that are in the catalog to evaluate.")
+        sys.exit("Need at least ~5 rated titles with tags to evaluate.")
 
     rows = []
     for i, row in in_cat.iterrows():
