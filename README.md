@@ -30,7 +30,17 @@ which is what makes this a platform rather than two scripts.
                        UserProfile · Item · Scored · FastAPI dashboard
 ```
 
-See [the design doc](../.claude/plans/wise-snuggling-corbato.md) for the full plan.
+See [the design doc](docs/design.md) for the full plan.
+
+## Dashboard
+
+One UI, two engines. **Sports** mode ranks a date-window watch-list by
+excitement × your calibrated taste; **Anime** mode switches to content-based
+recommendations — same cards, same spoiler-free reasons, different engine.
+
+| Sports watch-list | Anime recommendations |
+|---|---|
+| ![Sports mode](docs/dashboard-sports.jpg) | ![Anime mode](docs/dashboard-anime.jpg) |
 
 ## Why this design is interesting
 
