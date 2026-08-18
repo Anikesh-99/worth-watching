@@ -25,6 +25,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from src.core.features import unify  # noqa: E402
 from src.core.profile import load_user_profile  # noqa: E402
 from src.media.book_recommender import BookRecommender  # noqa: E402
+from src.media.content import augment_catalog  # noqa: E402
+from src.media.music_recommender import MusicRecommender  # noqa: E402
 from src.media.recommender import AnimeRecommender  # noqa: E402
 from src.sports.personalize import DEFAULT_WEIGHTS  # noqa: E402
 from src.sports.recommender import SportRecommender  # noqa: E402
@@ -79,24 +81,33 @@ def main() -> None:
     (OUT / "sports.json").write_text(json.dumps(sports))
 
     # ---- media verticals: cold-start recommendations -------------------
+    # anime/books use cold-start (public catalogs, no personal data). music is
+    # personalized — its catalog IS the user's taste, so it uses real ratings.
     media_specs = [
-        ("anime", "data/anime_catalog.csv", "configs/anime.yaml", AnimeRecommender),
-        ("book", "data/books_catalog.csv", "configs/books.yaml", BookRecommender),
+        ("anime", "data/anime_catalog.csv", "configs/anime.yaml", AnimeRecommender, None),
+        ("book", "data/books_catalog.csv", "configs/books.yaml", BookRecommender, None),
+        ("music", "data/music_catalog.csv", "configs/music.yaml", MusicRecommender, "data/my_music_ratings.csv"),
     ]
     media_meta = {}
     counts = {}
-    for vertical, catalog_path, config, RecClass in media_specs:
+    for vertical, catalog_path, config, RecClass, ratings_path in media_specs:
         cat = _load_csv(catalog_path)
         recs = []
         if cat is not None:
-            mu = load_user_profile([config], "data/__no_ratings__.csv")
+            if ratings_path and Path(ratings_path).exists():   # personalized vertical
+                rated = pd.read_csv(ratings_path)
+                if set(RecClass.tag_cols) & set(rated.columns):
+                    cat = augment_catalog(cat, rated)
+                mu = load_user_profile([config], ratings_path)
+            else:                                              # cold-start
+                mu = load_user_profile([config], "data/__no_ratings__.csv")
             for r in RecClass(cat).recommend(mu, top=60):
                 d = _scored_dict(r.scored, r.rank)
                 it = r.scored.item
-                sub = it.meta.get("type") or it.meta.get("author") or ""
+                sub = it.meta.get("type") or it.meta.get("author") or it.meta.get("artist") or ""
                 d["date"] = (str(sub)[:22] + (f" · {it.when.year}" if it.when and it.when.year > 1400 else "")).strip(" ·")
                 recs.append(d)
-            media_meta[vertical] = {"catalog_size": len(cat), "ratings": 0,
+            media_meta[vertical] = {"catalog_size": len(cat), "ratings": len(mu.ratings),
                                     "cold_start": sorted(mu.followed_entities)}
         (OUT / f"{vertical}.json").write_text(json.dumps(recs))
         counts[vertical] = len(recs)

@@ -42,9 +42,10 @@
   .badges { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
   .badge { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 6px; color: #fff; text-transform: uppercase; }
   .b-f1 { background: var(--f1); } .b-nba { background: var(--nba); }
-  .b-anime { background: #7c3aed; } .b-book { background: #0d9488; }
+  .b-anime { background: #7c3aed; } .b-book { background: #0d9488; } .b-music { background: #db2777; }
   .tier { font-size: 11px; font-weight: 700; text-transform: uppercase; }
-  .t-must-watch, .t-must-read { color: var(--must); } .t-solid, .t-worth-it { color: var(--solid); }
+  .t-must-watch, .t-must-read, .t-on-repeat { color: var(--must); }
+  .t-solid, .t-worth-it, .t-worth-a-spin { color: var(--solid); }
   .t-optional, .t-maybe { color: var(--optional); }
   .modes { display: inline-flex; gap: 4px; background: var(--card); border: 1px solid var(--line);
     border-radius: 999px; padding: 4px; margin: 14px 0 4px; }
@@ -65,7 +66,7 @@
 <div class="wrap">
   <header>
     <h1>Worth Watching? <span class="pill">spoiler-free</span></h1>
-    <p class="sub">What's worth your time tonight — one recommender across F1, NBA, anime &amp; books.</p>
+    <p class="sub">What's worth your time tonight — one recommender across F1, NBA, anime, books &amp; music.</p>
     <p class="sub" id="following"></p>
   </header>
 
@@ -73,6 +74,7 @@
     <button id="mode-sports" class="on">🏁 Sports</button>
     <button id="mode-anime">🍿 Anime</button>
     <button id="mode-book">📚 Books</button>
+    <button id="mode-music">🎵 Music</button>
   </div>
 
   <div class="controls">
@@ -91,32 +93,35 @@
   <div id="list"><p class="empty">Loading…</p></div>
 
   <p class="foot">Static demo — ML scores precomputed by the Python pipeline; browser only filters &amp; ranks.
-    No personal ratings shipped. <a href="https://github.com/Anikesh-99/worth-watching">Source &amp; full project ›</a></p>
+    Sports/anime/books run cold-start; music reflects the author's Spotify taste.
+    <a href="https://github.com/Anikesh-99/worth-watching">Source &amp; full project ›</a></p>
 </div>
 
 <script>
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
-const MODES = ['sports', 'anime', 'book'];
-const MEDIA_LABEL = { anime: 'Recommend anime', book: 'Recommend books' };
-const MEDIA_NOUN = { anime: 'title', book: 'book' };
-let META = null, SPORTS = [], MEDIA = { anime: [], book: [] }, MODE = 'sports';
+const MODES = ['sports', 'anime', 'book', 'music'];
+const MEDIA_LABEL = { anime: 'Recommend anime', book: 'Recommend books', music: 'Recommend music' };
+const MEDIA_NOUN = { anime: 'title', book: 'book', music: 'album' };
+let META = null, SPORTS = [], MEDIA = { anime: [], book: [], music: [] }, MODE = 'sports';
 
 async function loadData() {
-  const [meta, sports, anime, book] = await Promise.all([
+  const [meta, sports, anime, book, music] = await Promise.all([
     fetch('./data/meta.json').then(r => r.json()),
     fetch('./data/sports.json').then(r => r.json()),
     fetch('./data/anime.json').then(r => r.json()).catch(() => []),
     fetch('./data/book.json').then(r => r.json()).catch(() => []),
+    fetch('./data/music.json').then(r => r.json()).catch(() => []),
   ]);
-  META = meta; SPORTS = sports; MEDIA = { anime, book };
+  META = meta; SPORTS = sports; MEDIA = { anime, book, music };
   $('#start').value = META.default_start; $('#end').value = META.default_end;
   $('#start').min = $('#end').min = META.date_min;
   $('#start').max = $('#end').max = META.date_max;
   $('#following').textContent = 'Following: ' + META.followed.join(', ');
   const media = META.media || {};
-  if (!media.anime || !MEDIA.anime.length) $('#mode-anime').style.display = 'none';
-  if (!media.book || !MEDIA.book.length) $('#mode-book').style.display = 'none';
+  ['anime', 'book', 'music'].forEach(v => {
+    if (!media[v] || !(MEDIA[v] || []).length) $('#mode-' + v).style.display = 'none';
+  });
 }
 
 function setNote() {
@@ -126,8 +131,10 @@ function setNote() {
       + `stakes +${w.stakes_boost}). In the full app, weights calibrate to your ratings.`;
   } else {
     const m = (META.media || {})[MODE] || {}, noun = MEDIA_NOUN[MODE] || 'item';
-    $('#calnote').textContent = `Cold-start from [${(m.cold_start || []).join(', ')}] over a `
-      + `${m.catalog_size}-${noun} catalog — content-based taste matching.`;
+    $('#calnote').textContent = m.ratings
+      ? `Content-based on ${m.ratings} of the author's ${MODE} ratings across a ${m.catalog_size}-${noun} catalog.`
+      : `Cold-start from [${(m.cold_start || []).join(', ')}] over a ${m.catalog_size}-${noun} catalog `
+        + `— content-based taste matching.`;
   }
 }
 
