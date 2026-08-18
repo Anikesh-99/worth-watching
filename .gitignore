@@ -10,3 +10,5 @@ data/*.parquet
 models/
 .pytest_cache/
 .DS_Store
+.env
+data/.spotify_token.json

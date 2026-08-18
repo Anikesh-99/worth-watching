@@ -1,0 +1,14 @@
+# Music vertical (Spotify) config. Catalog + taste both come from the Spotify
+# API (scripts/spotify_auth.py then scripts/build_music.py). Same
+# ContentRecommender engine as anime/books — genres are the tags.
+
+vertical: music
+
+# Cold-start genres, used only before your top artists are fetched.
+followed_entities:
+  - pop
+  - hip hop
+  - rock
+
+top_artists_time_range: medium_term   # short_term | medium_term | long_term
+new_releases_limit: 60
