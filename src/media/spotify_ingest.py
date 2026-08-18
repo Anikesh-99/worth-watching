@@ -21,6 +21,12 @@ from pathlib import Path
 import pandas as pd
 import requests
 
+try:
+    from dotenv import load_dotenv
+    load_dotenv()  # load SPOTIFY_* from a local .env if present
+except ImportError:
+    pass
+
 TOKEN_FILE = Path("data/.spotify_token.json")
 CATALOG_COLUMNS = ["item_id", "name", "artist", "year", "popularity", "genres"]
 RATING_COLUMNS = ["item_id", "rating", "name", "genres"]

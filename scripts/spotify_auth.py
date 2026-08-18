@@ -26,6 +26,12 @@ from pathlib import Path
 
 import requests
 
+try:
+    from dotenv import load_dotenv
+    load_dotenv()  # load SPOTIFY_* from a local .env if present
+except ImportError:
+    pass
+
 REDIRECT = os.environ.get("SPOTIFY_REDIRECT_URI", "http://127.0.0.1:8888/callback")
 SCOPE = "user-top-read"
 TOKEN_FILE = Path("data/.spotify_token.json")
