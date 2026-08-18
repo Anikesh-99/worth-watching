@@ -79,23 +79,24 @@ class SpotifyClient:
             })
         return pd.DataFrame(rows, columns=RATING_COLUMNS)
 
-    # -- candidates: new releases ----------------------------------------
+    # -- candidates: new releases (via search, not the restricted browse API) --
 
-    def _artist_genres(self, artist_ids: list[str]) -> dict[str, list[str]]:
-        out: dict[str, list[str]] = {}
+    def _artist_info(self, artist_ids: list[str]) -> dict[str, dict]:
+        """id -> {genres, popularity} for a batch of artists."""
+        out: dict[str, dict] = {}
         for i in range(0, len(artist_ids), 50):
-            batch = artist_ids[i:i + 50]
-            data = self._get("/artists", {"ids": ",".join(batch)})
+            data = self._get("/artists", {"ids": ",".join(artist_ids[i:i + 50])})
             for a in data.get("artists", []) or []:
                 if a:
-                    out[a["id"]] = a.get("genres", [])
+                    out[a["id"]] = {"genres": a.get("genres", []), "popularity": a.get("popularity", 50)}
         return out
 
     def new_releases(self, limit: int = 50) -> pd.DataFrame:
-        albums = []
-        offset = 0
-        while len(albums) < limit:
-            data = self._get("/browse/new-releases", {"limit": 50, "offset": offset})
+        """Fresh albums via the search endpoint (q=tag:new), which stays
+        available where /browse/new-releases is now 403 for new apps."""
+        albums, offset = [], 0
+        while len(albums) < limit and offset < 950:
+            data = self._get("/search", {"q": "tag:new", "type": "album", "limit": 50, "offset": offset})
             items = (data.get("albums") or {}).get("items", [])
             if not items:
                 break
@@ -104,19 +105,19 @@ class SpotifyClient:
         albums = albums[:limit]
 
         artist_ids = list({a["artists"][0]["id"] for a in albums if a.get("artists")})
-        genres = self._artist_genres(artist_ids)
+        info = self._artist_info(artist_ids)
 
         rows = []
         for a in albums:
             if not a.get("artists"):
                 continue
-            aid = a["artists"][0]["id"]
+            meta = info.get(a["artists"][0]["id"], {})
             rows.append({
                 "item_id": f"music-album-{a['id']}",
                 "name": a["name"],
                 "artist": a["artists"][0]["name"],
                 "year": (a.get("release_date") or "0")[:4],
-                "popularity": a.get("popularity", 50),
-                "genres": "|".join(genres.get(aid, [])),
+                "popularity": meta.get("popularity", 50),
+                "genres": "|".join(meta.get("genres", [])),
             })
         return pd.DataFrame(rows, columns=CATALOG_COLUMNS)
