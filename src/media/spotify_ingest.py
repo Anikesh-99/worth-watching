@@ -93,22 +93,26 @@ class SpotifyClient:
         return out
 
     def new_releases(self, limit: int = 50) -> pd.DataFrame:
-        """Recent albums via a year-range search (paginates cleanly, unlike the
-        `tag:new` filter), since /browse/new-releases is 403 for new apps."""
+        """Recent albums via single-year searches (the form Spotify supports;
+        range syntax `year:A-B` returns nothing). /browse/new-releases is 403."""
         y = datetime.now().year
-        query = f"year:{y - 1}-{y}"
-        albums, offset = [], 0
-        while len(albums) < limit and offset <= 950:
-            try:
-                data = self._get("/search", {"q": query, "type": "album", "limit": 50, "offset": offset})
-            except Exception as exc:  # tolerate a bad page rather than crash
-                logging.debug("search page %s failed: %s", offset, exc)
+        albums = []
+        for yr in (y, y - 1):                       # e.g. 2026 then 2025
+            offset = 0
+            while len(albums) < limit and offset <= 950:
+                try:
+                    data = self._get("/search",
+                                     {"q": f"year:{yr}", "type": "album", "limit": 50, "offset": offset})
+                except Exception as exc:            # tolerate a bad page
+                    logging.debug("search %s off %s failed: %s", yr, offset, exc)
+                    break
+                items = (data.get("albums") or {}).get("items", [])
+                if not items:
+                    break
+                albums.extend(items)
+                offset += 50
+            if len(albums) >= limit:
                 break
-            items = (data.get("albums") or {}).get("items", [])
-            if not items:
-                break
-            albums.extend(items)
-            offset += 50
         albums = albums[:limit]
 
         artist_ids = list({a["artists"][0]["id"] for a in albums if a.get("artists")})
