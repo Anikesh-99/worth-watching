@@ -16,6 +16,7 @@ import json
 import logging
 import os
 import time
+from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
@@ -92,11 +93,17 @@ class SpotifyClient:
         return out
 
     def new_releases(self, limit: int = 50) -> pd.DataFrame:
-        """Fresh albums via the search endpoint (q=tag:new), which stays
-        available where /browse/new-releases is now 403 for new apps."""
+        """Recent albums via a year-range search (paginates cleanly, unlike the
+        `tag:new` filter), since /browse/new-releases is 403 for new apps."""
+        y = datetime.now().year
+        query = f"year:{y - 1}-{y}"
         albums, offset = [], 0
-        while len(albums) < limit and offset < 950:
-            data = self._get("/search", {"q": "tag:new", "type": "album", "limit": 50, "offset": offset})
+        while len(albums) < limit and offset <= 950:
+            try:
+                data = self._get("/search", {"q": query, "type": "album", "limit": 50, "offset": offset})
+            except Exception as exc:  # tolerate a bad page rather than crash
+                logging.debug("search page %s failed: %s", offset, exc)
+                break
             items = (data.get("albums") or {}).get("items", [])
             if not items:
                 break
