@@ -49,7 +49,7 @@ def watchlist(
 
 @app.get("/api/media")
 def media(
-    vertical: str = Query(..., pattern="^(anime|book)$"),
+    vertical: str = Query(..., pattern="^(anime|book|music)$"),
     top: int = Query(25, ge=1, le=100),
 ) -> dict:
     svc = _service()

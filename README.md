@@ -3,7 +3,7 @@
 **▶ Live demo: https://anikesh-99.github.io/worth-watching/**
 
 A personalized recommendation **platform** that answers, spoiler-free:
-*"What's actually worth my time tonight?"* — across live sport, anime, and books.
+*"What's actually worth my time tonight?"* — across live sport, anime, books, and music.
 
 > The live demo is a static build (`web_static/`): the real Python pipeline's
 > scores are precomputed into JSON, and the browser only filters and ranks. It
@@ -157,8 +157,16 @@ python -m venv .venv && ./.venv/bin/pip install -r requirements.txt
 ./.venv/bin/python -m pytest -q                                 # 36 tests, network-free + cached
 ```
 
-All six phases complete, three verticals live. Next natural extension: a music
-vertical (Spotify) — a new ingest + a `Recommender` on the same interface.
+**Music (Spotify) vertical.** A fourth `ContentRecommender`: taste = your top
+artists' genres, candidates = discovered artists in those genres + your top
+artists' recent releases. Honest constraint story — Spotify's restricted app
+tier returns *no* artist genres and blocks recommendations/related-artists/
+browse/batch endpoints (search caps at 10), so genres are recovered from
+**MusicBrainz** and candidates assembled from the endpoints that still work. In
+the local dashboard as a 🎵 Music mode; kept off the public demo since its
+catalog is built from personal taste (the demo ships no personal data).
+
+All six phases complete, four verticals live.
 
 ## Layout
 

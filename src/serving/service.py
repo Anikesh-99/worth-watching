@@ -16,6 +16,8 @@ import pandas as pd
 from src.core.features import unify
 from src.core.profile import load_user_profile
 from src.media.book_recommender import BookRecommender
+from src.media.content import augment_catalog
+from src.media.music_recommender import MusicRecommender
 from src.media.recommender import AnimeRecommender
 from src.sports.personalize import DEFAULT_WEIGHTS, calibrate
 from src.sports.recommender import SportRecommender
@@ -46,13 +48,21 @@ class WatchlistService:
         media_specs = [
             ("anime", "anime_catalog.csv", "configs/anime.yaml", "my_anime_ratings.csv", AnimeRecommender),
             ("book", "books_catalog.csv", "configs/books.yaml", "my_books_ratings.csv", BookRecommender),
+            ("music", "music_catalog.csv", "configs/music.yaml", "my_music_ratings.csv", MusicRecommender),
         ]
         for vertical, catalog_name, config, ratings_name, RecClass in media_specs:
             cp = d / catalog_name
-            if cp.exists():
-                rec = RecClass(pd.read_csv(cp))
-                user = load_user_profile([config], str(d / ratings_name))
-                self.media[vertical] = (rec, user)
+            if not cp.exists():
+                continue
+            catalog = pd.read_csv(cp)
+            rpath = d / ratings_name
+            # Ground taste in rated items' own tags (AniList genres, Spotify
+            # top-artist genres) so the dashboard matches the CLI recommenders.
+            if rpath.exists():
+                rated = pd.read_csv(rpath)
+                if set(RecClass.tag_cols) & set(rated.columns):
+                    catalog = augment_catalog(catalog, rated)
+            self.media[vertical] = (RecClass(catalog), load_user_profile([config], str(rpath)))
 
     # -- metadata for the UI ---------------------------------------------
 
@@ -88,7 +98,7 @@ class WatchlistService:
         out = []
         for r in rec.recommend(user, top=top):
             sc, it = r.scored, r.scored.item
-            sub = it.meta.get("type") or it.meta.get("author") or ""
+            sub = it.meta.get("type") or it.meta.get("author") or it.meta.get("artist") or ""
             out.append({
                 "rank": r.rank,
                 "item_id": it.item_id,

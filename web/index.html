@@ -43,9 +43,10 @@
   .badges { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
   .badge { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 6px; color: #fff; text-transform: uppercase; }
   .b-f1 { background: var(--f1); } .b-nba { background: var(--nba); }
-  .b-anime { background: #7c3aed; } .b-book { background: #0d9488; }
+  .b-anime { background: #7c3aed; } .b-book { background: #0d9488; } .b-music { background: #db2777; }
   .tier { font-size: 11px; font-weight: 700; text-transform: uppercase; }
-  .t-must-watch, .t-must-read { color: var(--must); } .t-solid, .t-worth-it { color: var(--solid); }
+  .t-must-watch, .t-must-read, .t-on-repeat { color: var(--must); }
+  .t-solid, .t-worth-it, .t-worth-a-spin { color: var(--solid); }
   .t-optional, .t-maybe { color: var(--optional); }
   .modes { display: inline-flex; gap: 4px; background: var(--card); border: 1px solid var(--line);
     border-radius: 999px; padding: 4px; margin: 14px 0 4px; }
@@ -72,6 +73,7 @@
     <button id="mode-sports" class="on">🏁 Sports</button>
     <button id="mode-anime">🍿 Anime</button>
     <button id="mode-book">📚 Books</button>
+    <button id="mode-music">🎵 Music</button>
   </div>
 
   <div class="controls">
@@ -94,9 +96,9 @@
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
 let META = null, MODE = 'sports';
-const MODES = ['sports', 'anime', 'book'];
-const MEDIA_LABEL = { anime: 'Recommend anime', book: 'Recommend books' };
-const MEDIA_NOUN = { anime: 'title', book: 'book' };
+const MODES = ['sports', 'anime', 'book', 'music'];
+const MEDIA_LABEL = { anime: 'Recommend anime', book: 'Recommend books', music: 'Recommend music' };
+const MEDIA_NOUN = { anime: 'title', book: 'book', music: 'album' };
 
 async function loadMeta() {
   META = await (await fetch('/api/meta')).json();
@@ -105,8 +107,9 @@ async function loadMeta() {
   $('#start').max = $('#end').max = META.date_max;
   $('#following').textContent = 'Following: ' + META.followed.join(', ');
   const media = META.media || {};
-  if (!media.anime) $('#mode-anime').style.display = 'none';
-  if (!media.book) $('#mode-book').style.display = 'none';
+  ['anime', 'book', 'music'].forEach(v => {
+    if (!media[v]) $('#mode-' + v).style.display = 'none';
+  });
 }
 
 function setNote() {
