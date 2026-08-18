@@ -12,12 +12,29 @@ Usage:
 
 from __future__ import annotations
 
+import re
 import sys
 from collections import Counter
 from pathlib import Path
 
 import pandas as pd
 import yaml
+
+
+def _base_title(name: str) -> str:
+    """Normalize an album name so variant editions collapse together."""
+    s = re.sub(r"\s*[\(\[].*?[\)\]]", "", str(name))   # drop (Deluxe), [Explicit]
+    s = re.split(r":\s|\s-\s", s)[0]                     # cut at ": " / " - " subtitles
+    return s.strip().lower()
+
+
+def _dedup(catalog: pd.DataFrame) -> pd.DataFrame:
+    """Keep one album per (artist, base title) — the shortest (original) name."""
+    c = catalog.copy()
+    c["_key"] = list(zip(c["artist"].astype(str).str.lower(), c["name"].map(_base_title)))
+    c["_len"] = c["name"].str.len()
+    c = c.sort_values("_len").drop_duplicates("_key", keep="first")
+    return c.drop(columns=["_key", "_len"]).reset_index(drop=True)
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from src.media.musicbrainz import artist_genres  # noqa: E402
@@ -63,6 +80,9 @@ def main() -> None:
             })
     catalog = pd.concat([catalog, pd.DataFrame(fav, columns=CATALOG_COLUMNS)]) \
                 .drop_duplicates("item_id").reset_index(drop=True)
+    before = len(catalog)
+    catalog = _dedup(catalog)                            # collapse variant editions
+    print(f"deduped variant editions: {before} -> {len(catalog)} albums")
 
     Path("data").mkdir(exist_ok=True)
     taste.to_csv("data/my_music_ratings.csv", index=False)
