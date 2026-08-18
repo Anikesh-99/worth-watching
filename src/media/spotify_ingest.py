@@ -80,55 +80,47 @@ class SpotifyClient:
             })
         return pd.DataFrame(rows, columns=RATING_COLUMNS)
 
-    # -- candidates: new releases (via search, not the restricted browse API) --
+    # -- candidates: discover new artists in your genres --------------------
+    #
+    # Spotify's restricted tier gives no artist genres and blocks batch /artists,
+    # /browse, related-artists and recommendations. What still works: genre
+    # artist-search (limit<=10) and /artists/{id}/albums. So we search each of
+    # your taste genres for artists, take their recent albums, and tag each album
+    # with the genre it was discovered under (known by construction).
 
-    def _artist_info(self, artist_ids: list[str]) -> dict[str, dict]:
-        """id -> {genres, popularity} for a batch of artists."""
-        out: dict[str, dict] = {}
-        for i in range(0, len(artist_ids), 50):
-            data = self._get("/artists", {"ids": ",".join(artist_ids[i:i + 50])})
-            for a in data.get("artists", []) or []:
-                if a:
-                    out[a["id"]] = {"genres": a.get("genres", []), "popularity": a.get("popularity", 50)}
-        return out
+    def genre_artists(self, genre: str, limit: int = 10) -> list[dict]:
+        try:
+            data = self._get("/search", {"q": f'genre:"{genre}"', "type": "artist", "limit": min(limit, 10)})
+        except Exception as exc:
+            logging.debug("genre search %s failed: %s", genre, exc)
+            return []
+        return [{"id": a["id"], "name": a["name"], "popularity": a.get("popularity", 50)}
+                for a in (data.get("artists") or {}).get("items", [])]
 
-    def new_releases(self, limit: int = 50) -> pd.DataFrame:
-        """Recent albums via single-year searches (the form Spotify supports;
-        range syntax `year:A-B` returns nothing). /browse/new-releases is 403."""
-        y = datetime.now().year
-        albums = []
-        for yr in (y, y - 1):                       # e.g. 2026 then 2025
-            offset = 0
-            while len(albums) < limit and offset <= 950:
-                try:
-                    data = self._get("/search",
-                                     {"q": f"year:{yr}", "type": "album", "limit": 50, "offset": offset})
-                except Exception as exc:            # tolerate a bad page
-                    logging.debug("search %s off %s failed: %s", yr, offset, exc)
-                    break
-                items = (data.get("albums") or {}).get("items", [])
-                if not items:
-                    break
-                albums.extend(items)
-                offset += 50
-            if len(albums) >= limit:
-                break
-        albums = albums[:limit]
+    def artist_recent_albums(self, artist_id: str, limit: int = 3) -> list[dict]:
+        try:
+            data = self._get(f"/artists/{artist_id}/albums",
+                             {"include_groups": "album,single", "limit": min(limit, 10)})
+        except Exception as exc:
+            logging.debug("albums %s failed: %s", artist_id, exc)
+            return []
+        return data.get("items", [])
 
-        artist_ids = list({a["artists"][0]["id"] for a in albums if a.get("artists")})
-        info = self._artist_info(artist_ids)
-
-        rows = []
-        for a in albums:
-            if not a.get("artists"):
-                continue
-            meta = info.get(a["artists"][0]["id"], {})
-            rows.append({
-                "item_id": f"music-album-{a['id']}",
-                "name": a["name"],
-                "artist": a["artists"][0]["name"],
-                "year": (a.get("release_date") or "0")[:4],
-                "popularity": meta.get("popularity", 50),
-                "genres": "|".join(meta.get("genres", [])),
-            })
-        return pd.DataFrame(rows, columns=CATALOG_COLUMNS)
+    def discover_candidates(self, seed_genres: list[str], per_genre: int = 10,
+                            albums_per_artist: int = 2, exclude_ids: set[str] | None = None) -> pd.DataFrame:
+        exclude_ids = exclude_ids or set()
+        rows: dict[str, dict] = {}
+        for genre in seed_genres:
+            for art in self.genre_artists(genre, per_genre):
+                if art["id"] in exclude_ids:
+                    continue
+                for alb in self.artist_recent_albums(art["id"], albums_per_artist):
+                    rows[f"music-album-{alb['id']}"] = {
+                        "item_id": f"music-album-{alb['id']}",
+                        "name": alb["name"],
+                        "artist": art["name"],
+                        "year": (alb.get("release_date") or "0")[:4],
+                        "popularity": art["popularity"],
+                        "genres": genre.title(),  # discovered under this genre
+                    }
+        return pd.DataFrame(list(rows.values()), columns=CATALOG_COLUMNS)
