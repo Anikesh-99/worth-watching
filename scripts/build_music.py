@@ -21,7 +21,7 @@ import yaml
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from src.media.musicbrainz import artist_genres  # noqa: E402
-from src.media.spotify_ingest import SpotifyClient  # noqa: E402
+from src.media.spotify_ingest import CATALOG_COLUMNS, SpotifyClient  # noqa: E402
 
 
 def main() -> None:
@@ -42,9 +42,27 @@ def main() -> None:
     seeds = [g for g, _ in counts.most_common(6)]
     print(f"your top genres: {seeds}")
 
-    # 3) candidates: discover artists in those genres, take their recent albums
+    # 3a) candidates: discover NEW artists in those genres
     exclude = {i.replace("music-", "") for i in taste["item_id"]}
     catalog = client.discover_candidates(seeds, per_genre=10, albums_per_artist=2, exclude_ids=exclude)
+
+    # 3b) candidates: recent releases from YOUR top artists (known quality),
+    #     tagged with their MusicBrainz genres and a high popularity prior.
+    fav = []
+    for _, art in taste.iterrows():
+        aid = art["item_id"].replace("music-", "")
+        pop = int(round(float(art["rating"]) * 10))          # rank -> 0..100 prior
+        for alb in client.artist_recent_albums(aid, limit=2):
+            fav.append({
+                "item_id": f"music-album-{alb['id']}",
+                "name": alb["name"],
+                "artist": art["name"],
+                "year": (alb.get("release_date") or "0")[:4],
+                "popularity": pop,
+                "genres": art["genres"],
+            })
+    catalog = pd.concat([catalog, pd.DataFrame(fav, columns=CATALOG_COLUMNS)]) \
+                .drop_duplicates("item_id").reset_index(drop=True)
 
     Path("data").mkdir(exist_ok=True)
     taste.to_csv("data/my_music_ratings.csv", index=False)
