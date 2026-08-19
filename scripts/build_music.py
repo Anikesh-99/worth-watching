@@ -70,6 +70,7 @@ def main() -> None:
         aid = art["item_id"].replace("music-", "")
         pop = int(round(float(art["rating"]) * 10))          # rank -> 0..100 prior
         for alb in client.artist_recent_albums(aid, limit=2):
+            imgs = alb.get("images") or []
             fav.append({
                 "item_id": f"music-album-{alb['id']}",
                 "name": alb["name"],
@@ -77,6 +78,7 @@ def main() -> None:
                 "year": (alb.get("release_date") or "0")[:4],
                 "popularity": pop,
                 "genres": art["genres"],
+                "image_url": imgs[0]["url"] if imgs else "",
             })
     catalog = pd.concat([catalog, pd.DataFrame(fav, columns=CATALOG_COLUMNS)]) \
                 .drop_duplicates("item_id").reset_index(drop=True)

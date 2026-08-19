@@ -27,13 +27,16 @@ class WatchlistService:
     def __init__(self, data_dir: str = "data",
                  configs: tuple[str, ...] = ("configs/f1.yaml", "configs/nba.yaml")) -> None:
         d = Path(data_dir)
-        f1 = pd.read_csv(d / "f1_events.csv", parse_dates=["date"]) if (d / "f1_events.csv").exists() else None
-        nba = pd.read_csv(d / "nba_events.csv", parse_dates=["date"]) if (d / "nba_events.csv").exists() else None
-        self.df = unify(f1, nba)
+
+        def _load(name: str):
+            p = d / name
+            return pd.read_csv(p, parse_dates=["date"]) if p.exists() else None
+
+        self.df = unify(_load("f1_events.csv"), _load("nba_events.csv"), _load("soccer_events.csv"))
         if self.df.empty:
             raise RuntimeError("No event data. Run scripts/build_dataset.py first.")
 
-        self.user = load_user_profile(list(configs))
+        self.user = load_user_profile([*configs, "configs/soccer.yaml"])
         self.weights = DEFAULT_WEIGHTS
         if self.user.ratings:
             rated = self.df[self.df["item_id"].isin(self.user.ratings)].copy()

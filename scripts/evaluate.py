@@ -47,7 +47,7 @@ def main() -> None:
         sys.exit("No data/my_ratings.csv. Fill the template first.")
     ratings = pd.read_csv("data/my_ratings.csv")[["item_id", "rating"]]
 
-    feats = unify(_load("data/f1_events.csv"), _load("data/nba_events.csv"))
+    feats = unify(_load("data/f1_events.csv"), _load("data/nba_events.csv"), _load("data/soccer_events.csv"))
     df = feats.merge(ratings, on="item_id", how="inner").reset_index(drop=True)
     print(f"rated events: {len(df)}  ", df.groupby("sport").size().to_dict())
 

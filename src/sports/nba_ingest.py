@@ -23,8 +23,8 @@ import requests
 
 GAME_COLUMNS = [
     "item_id", "season", "date", "away", "home", "away_score", "home_score",
-    "final_margin", "overtime_periods", "lead_changes", "winner_came_from_behind",
-    "max_abs_lead", "is_playoff",
+    "away_logo", "home_logo", "final_margin", "overtime_periods", "lead_changes",
+    "winner_came_from_behind", "max_abs_lead", "is_playoff",
 ]
 
 _SCOREBOARD = "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard"
@@ -120,6 +120,8 @@ class NBAIngest:
             "date": pd.to_datetime(event.get("date")).to_pydatetime(),
             "away": away["team"]["abbreviation"],
             "home": home["team"]["abbreviation"],
+            "away_logo": away["team"].get("logo", ""),
+            "home_logo": home["team"].get("logo", ""),
             "away_score": as_,
             "home_score": hs,
             "final_margin": abs(hs - as_),

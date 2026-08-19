@@ -35,9 +35,10 @@ def _load(path: str) -> pd.DataFrame | None:
 def main(test_season: int = 2024) -> None:
     f1 = _load("data/f1_events.csv")
     nba = _load("data/nba_events.csv")
-    df = unify(f1, nba)
+    soccer = _load("data/soccer_events.csv")
+    df = unify(f1, nba, soccer)
     if df.empty:
-        sys.exit("No data. Run scripts/build_dataset.py for f1 and nba first.")
+        sys.exit("No data. Run scripts/build_dataset.py first.")
 
     # Bootstrap relevance grades from the transparent index (see excitement.py).
     index = ExcitementIndex()

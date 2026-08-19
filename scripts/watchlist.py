@@ -31,7 +31,7 @@ def _load(path: str) -> pd.DataFrame | None:
 
 
 def main(start: str = DEFAULT_START, end: str = DEFAULT_END) -> None:
-    df = unify(_load("data/f1_events.csv"), _load("data/nba_events.csv"))
+    df = unify(_load("data/f1_events.csv"), _load("data/nba_events.csv"), _load("data/soccer_events.csv"))
     if df.empty:
         sys.exit("Build datasets first (scripts/build_dataset.py).")
 

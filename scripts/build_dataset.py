@@ -21,6 +21,7 @@ from src.media.anime_ingest import AnimeIngest  # noqa: E402
 from src.media.book_ingest import BookIngest  # noqa: E402
 from src.sports.ingest import F1Ingest  # noqa: E402
 from src.sports.nba_ingest import NBAIngest  # noqa: E402
+from src.sports.soccer_ingest import SoccerIngest  # noqa: E402
 
 
 def _build_f1(cfg: dict):
@@ -49,11 +50,19 @@ def _build_book(cfg: dict):
     return df, "editions", ["item_id", "title", "author", "year", "editions", "subjects"]
 
 
-BUILDERS = {"f1": _build_f1, "nba": _build_nba, "anime": _build_anime, "book": _build_book}
+def _build_soccer(cfg: dict):
+    df = SoccerIngest(cache_dir=cfg.get("cache_dir", "data/soccer_cache")).build(
+        leagues=cfg["leagues"], seasons=cfg["seasons"])
+    return df, "total_goals", ["item_id", "league", "away", "home", "away_score",
+                               "home_score", "total_goals", "red_cards", "came_from_behind"]
+
+
+BUILDERS = {"f1": _build_f1, "nba": _build_nba, "anime": _build_anime,
+            "book": _build_book, "soccer": _build_soccer}
 
 # sports datasets are seasonal events; media is a catalog. Name the output and
 # the summary accordingly.
-_OUTPUT = {"f1": "f1_events.csv", "nba": "nba_events.csv",
+_OUTPUT = {"f1": "f1_events.csv", "nba": "nba_events.csv", "soccer": "soccer_events.csv",
            "anime": "anime_catalog.csv", "book": "books_catalog.csv"}
 
 

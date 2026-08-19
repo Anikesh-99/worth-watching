@@ -74,7 +74,7 @@ def main() -> None:
     user = load_user_profile(["configs/f1.yaml", "configs/nba.yaml"], "data/__no_ratings__.csv")
 
     # ---- sports: score every event with the default prior --------------
-    df = unify(_load("data/f1_events.csv"), _load("data/nba_events.csv"))
+    df = unify(_load("data/f1_events.csv"), _load("data/nba_events.csv"), _load("data/soccer_events.csv"))
     rec = SportRecommender(df, weights=DEFAULT_WEIGHTS)
     scored = rec.score(rec.generate_candidates(_MIN, _MAX), user)
     sports = [_scored_dict(s, 0) for s in scored]

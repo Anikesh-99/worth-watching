@@ -17,7 +17,7 @@ from pathlib import Path
 import pandas as pd
 import requests
 
-CATALOG_COLUMNS = ["item_id", "title", "author", "year", "editions", "subjects"]
+CATALOG_COLUMNS = ["item_id", "title", "author", "year", "editions", "subjects", "image_url"]
 
 _SUBJECT_URL = "https://openlibrary.org/subjects/{slug}.json"
 
@@ -88,6 +88,7 @@ class BookIngest:
         subs = _clean_subjects(w.get("subject", []))
         if not subs:
             return None
+        cover = w.get("cover_id")
         return {
             "item_id": f"book-{key}",
             "title": w["title"],
@@ -95,6 +96,7 @@ class BookIngest:
             "year": w.get("first_publish_year"),
             "editions": w.get("edition_count") or 1,
             "subjects": "|".join(subs),
+            "image_url": f"https://covers.openlibrary.org/b/id/{cover}-L.jpg" if cover else "",
         }
 
     def build(self, subjects: list[str], limit: int = 50) -> pd.DataFrame:

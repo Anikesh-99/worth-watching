@@ -1,0 +1,19 @@
+# Soccer vertical (Premier League + Champions League) config. ESPN keyless,
+# same excitement engine as F1/NBA via normalize_soccer().
+
+vertical: soccer
+
+cache_dir: data/soccer_cache
+
+leagues:
+  - eng.1            # Premier League
+  - uefa.champions   # Champions League
+
+seasons: [2023, 2024]   # labelled by end year (2024 == 2023-24)
+
+# Clubs you follow (ESPN abbreviations), for spoiler-free personalization.
+followed_entities:
+  - ARS
+  - LIV
+  - MNC
+  - RMA

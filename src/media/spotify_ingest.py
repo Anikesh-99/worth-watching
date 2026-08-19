@@ -29,7 +29,7 @@ except ImportError:
     pass
 
 TOKEN_FILE = Path("data/.spotify_token.json")
-CATALOG_COLUMNS = ["item_id", "name", "artist", "year", "popularity", "genres"]
+CATALOG_COLUMNS = ["item_id", "name", "artist", "year", "popularity", "genres", "image_url"]
 RATING_COLUMNS = ["item_id", "rating", "name", "genres"]
 
 
@@ -115,6 +115,7 @@ class SpotifyClient:
                 if art["id"] in exclude_ids:
                     continue
                 for alb in self.artist_recent_albums(art["id"], albums_per_artist):
+                    imgs = alb.get("images") or []
                     rows[f"music-album-{alb['id']}"] = {
                         "item_id": f"music-album-{alb['id']}",
                         "name": alb["name"],
@@ -122,5 +123,6 @@ class SpotifyClient:
                         "year": (alb.get("release_date") or "0")[:4],
                         "popularity": art["popularity"],
                         "genres": genre.title(),  # discovered under this genre
+                        "image_url": imgs[0]["url"] if imgs else "",
                     }
         return pd.DataFrame(list(rows.values()), columns=CATALOG_COLUMNS)

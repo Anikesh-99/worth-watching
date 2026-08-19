@@ -21,7 +21,7 @@ import requests
 
 CATALOG_COLUMNS = [
     "item_id", "mal_id", "title", "type", "year", "score", "members",
-    "genres", "themes",
+    "genres", "themes", "image_url",
 ]
 
 _TOP = "https://api.jikan.moe/v4/top/anime"
@@ -74,6 +74,7 @@ class AnimeIngest:
             "members": a.get("members") or 0,
             "genres": "|".join(g["name"] for g in a.get("genres", [])),
             "themes": "|".join(g["name"] for g in a.get("themes", [])),
+            "image_url": a.get("images", {}).get("jpg", {}).get("large_image_url", ""),
         }
 
     def build(self, pages: int = 24) -> pd.DataFrame:
