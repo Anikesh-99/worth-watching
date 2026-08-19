@@ -15,6 +15,9 @@ data/*.csv
 !data/anime_catalog.csv
 !data/books_catalog.csv
 !data/music_catalog.csv
+# music taste is part of the public demo (approved); kept so the cron rebuilds it.
+# personal sports/anime/book ratings stay private (my_ratings, my_anime_ratings, …).
+!data/my_music_ratings.csv
 data/*.parquet
 models/
 .pytest_cache/

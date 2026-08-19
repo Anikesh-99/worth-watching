@@ -36,14 +36,8 @@ class WatchlistService:
         if self.df.empty:
             raise RuntimeError("No event data. Run scripts/build_dataset.py first.")
 
-        self.user = load_user_profile([*configs, "configs/soccer.yaml"])
-        self.weights = DEFAULT_WEIGHTS
-        if self.user.ratings:
-            rated = self.df[self.df["item_id"].isin(self.user.ratings)].copy()
-            rated["rating"] = rated["item_id"].map(self.user.ratings)
-            self.weights = calibrate(rated, self.user)
-
-        self.rec = SportRecommender(self.df, weights=self.weights)
+        self._configs = [*configs, "configs/soccer.yaml"]
+        self.recalibrate()   # loads ratings, calibrates taste weights, builds the ranker
 
         # Media verticals (optional): loaded only if their catalog was built.
         # Each entry: vertical -> (recommender, user_profile).
@@ -66,6 +60,20 @@ class WatchlistService:
                 if set(RecClass.tag_cols) & set(rated.columns):
                     catalog = augment_catalog(catalog, rated)
             self.media[vertical] = (RecClass(catalog), load_user_profile([config], str(rpath)))
+
+    def recalibrate(self) -> None:
+        """(Re)load ratings, recompute taste weights, rebuild the sports ranker.
+
+        Called at startup and after a new rating is logged, so feedback takes
+        effect immediately without restarting the app.
+        """
+        self.user = load_user_profile(self._configs)
+        self.weights = DEFAULT_WEIGHTS
+        if self.user.ratings:
+            rated = self.df[self.df["item_id"].isin(self.user.ratings)].copy()
+            rated["rating"] = rated["item_id"].map(self.user.ratings)
+            self.weights = calibrate(rated, self.user)
+        self.rec = SportRecommender(self.df, weights=self.weights)
 
     # -- metadata for the UI ---------------------------------------------
 

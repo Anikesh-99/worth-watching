@@ -10,9 +10,10 @@ from __future__ import annotations
 from functools import lru_cache
 from pathlib import Path
 
-from fastapi import FastAPI, Query
+from fastapi import Body, FastAPI, Query
 from fastapi.responses import HTMLResponse
 
+from src.core.ratings import append_sports_rating
 from src.serving.service import WatchlistService
 
 app = FastAPI(title="Worth Watching?", docs_url="/api/docs")
@@ -45,6 +46,17 @@ def watchlist(
     svc = _service()
     return {"items": svc.watchlist(start, end, sport, top),
             "weights": svc.meta()["weights"]}
+
+
+@app.post("/api/rate")
+def rate(item_id: str = Body(..., embed=True), rating: int = Body(..., embed=True, ge=1, le=5)) -> dict:
+    """Log an owner rating for a sports event, then re-calibrate live."""
+    total = append_sports_rating(item_id, rating)
+    svc = _service()
+    svc.recalibrate()
+    w = svc.weights
+    return {"ok": True, "ratings": total,
+            "weights": {"followed_boost": w.followed_boost, "stakes_boost": w.stakes_boost}}
 
 
 @app.get("/api/media")
