@@ -1,0 +1,91 @@
+item_id,season,round,event_name,country,date,n_classified,n_dnf,winner_margin_s,total_positions_moved,max_gain,podium_from_outside_top5,winner_grid
+f1-2021-01,2021,1,Bahrain Grand Prix,Bahrain,2021-03-28,16,4,0.745,55,5,0,2
+f1-2021-02,2021,2,Emilia Romagna Grand Prix,Italy,2021-04-18,16,4,22.0,87,8,1,3
+f1-2021-03,2021,3,Portuguese Grand Prix,Portugal,2021-05-02,19,1,29.148,48,7,0,2
+f1-2021-04,2021,4,Spanish Grand Prix,Spain,2021-05-09,19,1,15.841,34,5,0,1
+f1-2021-05,2021,5,Monaco Grand Prix,Monaco,2021-05-23,18,2,8.968,70,5,0,2
+f1-2021-06,2021,6,Azerbaijan Grand Prix,Azerbaijan,2021-06-06,16,4,1.385,92,9,2,6
+f1-2021-07,2021,7,French Grand Prix,France,2021-06-20,20,0,2.904,66,9,0,1
+f1-2021-08,2021,8,Styrian Grand Prix,Austria,2021-06-27,18,2,35.743,54,7,0,1
+f1-2021-09,2021,9,Austrian Grand Prix,Austria,2021-07-04,18,2,17.973,56,6,0,1
+f1-2021-10,2021,10,British Grand Prix,Great Britain,2021-07-18,18,2,3.871,76,6,0,2
+f1-2021-11,2021,11,Hungarian Grand Prix,Hungary,2021-08-01,13,7,2.7359999999999998,154,12,2,8
+f1-2021-12,2021,12,Belgian Grand Prix,Belgium,2021-08-29,20,0,1.995,49,1,0,1
+f1-2021-13,2021,13,Dutch Grand Prix,Netherlands,2021-09-05,17,3,20.932,57,3,0,1
+f1-2021-14,2021,14,Italian Grand Prix,Italy,2021-09-12,15,5,1.7469999999999999,117,16,1,2
+f1-2021-15,2021,15,Russian Grand Prix,Russia,2021-09-26,18,2,53.271,86,18,1,4
+f1-2021-16,2021,16,Turkish Grand Prix,Turkey,2021-10-10,20,0,14.584,78,11,1,1
+f1-2021-17,2021,17,United States Grand Prix,United States,2021-10-24,17,3,1.333,48,8,0,1
+f1-2021-18,2021,18,Mexico City Grand Prix,Mexico,2021-11-07,18,2,16.555,68,8,0,3
+f1-2021-19,2021,19,São Paulo Grand Prix,Brazil,2021-11-14,18,2,10.496,58,9,1,10
+f1-2021-20,2021,20,Qatar Grand Prix,Qatar,2021-11-21,18,2,25.743,78,7,1,1
+f1-2021-21,2021,21,Saudi Arabian Grand Prix,Saudi Arabia,2021-12-05,15,5,11.825,68,7,0,1
+f1-2021-22,2021,22,Abu Dhabi Grand Prix,Abu Dhabi,2021-12-12,14,6,2.2560000000000002,50,7,0,1
+f1-2022-01,2022,1,Bahrain Grand Prix,Bahrain,2022-03-20,17,3,5.598,88,8,0,1
+f1-2022-02,2022,2,Saudi Arabian Grand Prix,Saudi Arabia,2022-03-27,13,7,0.549,46,5,0,4
+f1-2022-03,2022,3,Australian Grand Prix,Australia,2022-04-10,17,3,20.524,78,10,1,1
+f1-2022-04,2022,4,Emilia Romagna Grand Prix,Italy,2022-04-24,18,2,16.527,110,7,0,1
+f1-2022-05,2022,5,Miami Grand Prix,United States,2022-05-08,15,5,3.786,95,12,0,3
+f1-2022-06,2022,6,Spanish Grand Prix,Spain,2022-05-22,18,2,13.072,80,11,0,2
+f1-2022-07,2022,7,Monaco Grand Prix,Monaco,2022-05-29,17,3,1.154,52,6,0,3
+f1-2022-08,2022,8,Azerbaijan Grand Prix,Azerbaijan,2022-06-12,15,5,20.823,88,6,0,3
+f1-2022-09,2022,9,Canadian Grand Prix,Canada,2022-06-19,17,3,0.993,86,14,0,1
+f1-2022-10,2022,10,British Grand Prix,Great Britain,2022-07-03,14,6,3.779,86,11,0,1
+f1-2022-11,2022,11,Austrian Grand Prix,Austria,2022-07-10,17,3,1.532,76,9,1,2
+f1-2022-12,2022,12,French Grand Prix,France,2022-07-24,16,4,10.587,72,14,1,2
+f1-2022-13,2022,13,Hungarian Grand Prix,Hungary,2022-07-31,19,1,7.834,86,9,2,10
+f1-2022-14,2022,14,Belgian Grand Prix,Belgium,2022-08-28,18,2,17.841,118,13,1,14
+f1-2022-15,2022,15,Dutch Grand Prix,Netherlands,2022-09-04,18,2,4.071,54,7,1,1
+f1-2022-16,2022,16,Italian Grand Prix,Italy,2022-09-11,16,4,2.446,114,14,1,7
+f1-2022-17,2022,17,Singapore Grand Prix,Singapore,2022-10-02,14,6,2.5949999999999998,84,11,0,2
+f1-2022-18,2022,18,Japanese Grand Prix,Japan,2022-10-09,18,2,27.066,58,11,0,1
+f1-2022-19,2022,19,United States Grand Prix,United States,2022-10-23,17,3,5.023,110,9,1,2
+f1-2022-20,2022,20,Mexico City Grand Prix,Mexico,2022-10-30,18,2,15.186,52,5,0,1
+f1-2022-21,2022,21,São Paulo Grand Prix,Brazil,2022-11-13,17,3,1.529,104,12,1,1
+f1-2022-22,2022,22,Abu Dhabi Grand Prix,Abu Dhabi,2022-11-20,17,3,8.771,60,6,0,1
+f1-2023-01,2023,1,Bahrain Grand Prix,Bahrain,2023-03-05,17,3,11.987,84,11,0,1
+f1-2023-02,2023,2,Saudi Arabian Grand Prix,Saudi Arabia,2023-03-19,18,2,5.355,76,13,1,1
+f1-2023-03,2023,3,Australian Grand Prix,Australia,2023-04-02,12,8,0.179,114,15,0,1
+f1-2023-04,2023,4,Azerbaijan Grand Prix,Azerbaijan,2023-04-30,18,2,2.137,44,4,0,3
+f1-2023-05,2023,5,Miami Grand Prix,United States,2023-05-07,20,0,5.384,58,8,1,9
+f1-2023-06,2023,6,Monaco Grand Prix,Monaco,2023-05-28,18,2,27.921,42,6,0,1
+f1-2023-07,2023,7,Spanish Grand Prix,Spain,2023-06-04,20,0,24.09,72,9,1,1
+f1-2023-08,2023,8,Canadian Grand Prix,Canada,2023-06-18,18,2,9.57,86,7,0,1
+f1-2023-09,2023,9,Austrian Grand Prix,Austria,2023-07-02,19,1,5.155,64,12,1,1
+f1-2023-10,2023,10,British Grand Prix,Great Britain,2023-07-09,17,3,3.798,60,9,1,1
+f1-2023-11,2023,11,Hungarian Grand Prix,Hungary,2023-07-23,17,3,33.731,76,12,1,2
+f1-2023-12,2023,12,Belgian Grand Prix,Belgium,2023-07-30,18,2,22.305,66,6,1,6
+f1-2023-13,2023,13,Dutch Grand Prix,Netherlands,2023-08-27,17,3,3.7439999999999998,106,9,1,1
+f1-2023-14,2023,14,Italian Grand Prix,Italy,2023-09-03,18,2,6.064,48,4,0,2
+f1-2023-15,2023,15,Singapore Grand Prix,Singapore,2023-09-17,15,5,0.812,92,10,0,1
+f1-2023-16,2023,16,Japanese Grand Prix,Japan,2023-09-24,15,5,19.387,52,6,0,1
+f1-2023-17,2023,17,Qatar Grand Prix,Qatar,2023-10-08,17,3,4.833,84,10,2,1
+f1-2023-18,2023,18,United States Grand Prix,United States,2023-10-22,15,5,10.73,108,13,1,6
+f1-2023-19,2023,19,Mexico City Grand Prix,Mexico,2023-10-29,15,5,13.875,98,12,1,3
+f1-2023-20,2023,20,São Paulo Grand Prix,Brazil,2023-11-05,14,6,8.277,94,8,1,1
+f1-2023-21,2023,21,Las Vegas Grand Prix,United States,2023-11-18,17,3,2.07,112,14,1,2
+f1-2023-22,2023,22,Abu Dhabi Grand Prix,Abu Dhabi,2023-11-26,19,1,17.993,42,5,0,1
+f1-2024-01,2024,1,Bahrain Grand Prix,Bahrain,2024-03-02,20,0,22.457,46,6,0,1
+f1-2024-02,2024,2,Saudi Arabian Grand Prix,Saudi Arabia,2024-03-09,18,2,13.643,50,5,0,1
+f1-2024-03,2024,3,Australian Grand Prix,Australia,2024-03-24,16,3,2.366,74,7,0,2
+f1-2024-04,2024,4,Japanese Grand Prix,Japan,2024-04-07,17,3,12.535,44,5,0,1
+f1-2024-05,2024,5,Chinese Grand Prix,China,2024-04-21,17,3,13.773,58,9,0,1
+f1-2024-06,2024,6,Miami Grand Prix,United States,2024-05-05,19,1,7.612,56,6,0,5
+f1-2024-07,2024,7,Emilia Romagna Grand Prix,Italy,2024-05-19,19,1,0.725,42,6,0,1
+f1-2024-08,2024,8,Monaco Grand Prix,Monaco,2024-05-26,16,4,7.152,18,4,0,1
+f1-2024-09,2024,9,Canadian Grand Prix,Canada,2024-06-09,15,5,3.879,80,8,0,2
+f1-2024-10,2024,10,Spanish Grand Prix,Spain,2024-06-23,20,0,2.219,30,3,0,2
+f1-2024-11,2024,11,Austrian Grand Prix,Austria,2024-06-30,20,0,1.9060000000000001,64,5,1,3
+f1-2024-12,2024,12,British Grand Prix,United Kingdom,2024-07-07,18,2,1.465,52,5,0,2
+f1-2024-13,2024,13,Hungarian Grand Prix,Hungary,2024-07-21,19,1,2.141,50,9,0,2
+f1-2024-14,2024,14,Belgian Grand Prix,Belgium,2024-07-28,18,2,0.647,56,7,0,3
+f1-2024-15,2024,15,Dutch Grand Prix,Netherlands,2024-08-25,20,0,22.896,50,6,1,1
+f1-2024-16,2024,16,Italian Grand Prix,Italy,2024-09-01,19,1,2.664,42,6,0,4
+f1-2024-17,2024,17,Azerbaijan Grand Prix,Azerbaijan,2024-09-15,16,4,10.91,88,11,0,2
+f1-2024-18,2024,18,Singapore Grand Prix,Singapore,2024-09-22,18,2,20.945,54,5,0,1
+f1-2024-19,2024,19,United States Grand Prix,United States,2024-10-20,19,1,8.562,76,14,0,4
+f1-2024-20,2024,20,Mexico City Grand Prix,Mexico,2024-10-27,17,3,4.705,74,9,0,1
+f1-2024-21,2024,21,São Paulo Grand Prix,Brazil,2024-11-03,15,5,19.477,90,16,2,17
+f1-2024-22,2024,22,Las Vegas Grand Prix,United States,2024-11-23,18,2,7.313,60,8,1,1
+f1-2024-23,2024,23,Qatar Grand Prix,Qatar,2024-12-01,15,5,6.031,54,6,0,2
+f1-2024-24,2024,24,Abu Dhabi Grand Prix,United Arab Emirates,2024-12-08,16,4,5.832,84,16,1,1

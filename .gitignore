@@ -8,6 +8,13 @@ data/book_cache/
 data/soccer_cache/
 data/mb_cache/
 data/*.csv
+# derived public datasets are tracked so the refresh cron can rebuild in CI
+!data/f1_events.csv
+!data/nba_events.csv
+!data/soccer_events.csv
+!data/anime_catalog.csv
+!data/books_catalog.csv
+!data/music_catalog.csv
 data/*.parquet
 models/
 .pytest_cache/
