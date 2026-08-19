@@ -7,6 +7,7 @@ data/anime_cache/
 data/book_cache/
 data/soccer_cache/
 data/mb_cache/
+data/cover_cache/
 data/*.csv
 # derived public datasets are tracked so the refresh cron can rebuild in CI
 !data/f1_events.csv

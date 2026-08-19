@@ -15,11 +15,13 @@ Usage:
 from __future__ import annotations
 
 import json
+import re
 import sys
 from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
+import requests
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from src.core.excitement import ExcitementIndex  # noqa: E402
@@ -35,7 +37,35 @@ from src.sports.recommender import SportRecommender  # noqa: E402
 from src.sports.upcoming import UpcomingRecommender  # noqa: E402
 
 OUT = Path("web_static/data")
+IMG_DIR = Path("web_static/img")          # covers bundled with the demo
+CACHE_DIR = Path("data/cover_cache")      # disk cache so re-builds don't re-download
 _MIN, _MAX = datetime(1990, 1, 1), datetime(2100, 1, 1)
+_SESS = requests.Session()
+_SESS.headers.update({"User-Agent": "worth-watching/1.0"})
+
+
+def _cache_image(url: str, item_id: str) -> str:
+    """Download a cover once (cached), copy into the bundle, return a local path.
+
+    Makes the demo self-contained and reliable (Open Library covers hotlink
+    flakily). On any failure, fall back to the original URL rather than a blank.
+    """
+    if not url:
+        return ""
+    name = re.sub(r"[^a-zA-Z0-9]", "", item_id)[:48] + ".jpg"
+    cache_f = CACHE_DIR / name
+    try:
+        if not cache_f.exists():
+            r = _SESS.get(url, timeout=15)
+            if r.status_code != 200 or not r.content:
+                return url
+            CACHE_DIR.mkdir(parents=True, exist_ok=True)
+            cache_f.write_bytes(r.content)
+        IMG_DIR.mkdir(parents=True, exist_ok=True)
+        (IMG_DIR / name).write_bytes(cache_f.read_bytes())
+        return f"img/{name}"
+    except Exception:
+        return url
 
 
 def _load(path: str) -> pd.DataFrame | None:
@@ -138,6 +168,8 @@ def main() -> None:
                 it = r.scored.item
                 sub = it.meta.get("type") or it.meta.get("author") or it.meta.get("artist") or ""
                 d["date"] = (str(sub)[:22] + (f" · {it.when.year}" if it.when and it.when.year > 1400 else "")).strip(" ·")
+                if d.get("image"):
+                    d["image"] = _cache_image(d["image"], d["item_id"])   # bundle it locally
                 recs.append(d)
             media_meta[vertical] = {"catalog_size": len(cat), "ratings": len(mu.ratings),
                                     "cold_start": sorted(mu.followed_entities)}

@@ -1,101 +1,101 @@
-item_id,name,artist,year,popularity,genres
-music-album-1cqqIH16XzBnDchrXJ9Enf,Vie,Doja Cat,2025,50,Dance-Pop
-music-album-07w0rG5TETcyihsEIZR3qG,SOS,SZA,2022,50,R&B
-music-album-3jxt1S4JtW4uFalBwlfehS,143,Katy Perry,2024,38,Pop|Pop Rock|Bubblegum Pop|Dance-Pop|Electropop
-music-album-6Ad1E9vl75ZB3Ir87zwXIJ,TIM,Avicii,2019,74,Progressive House|Edm|Electro House|Dance-Pop|Electropop
-music-album-5BrjR0P59l9SsbODztqs3q,KYGO,Kygo,2024,64,Tropical House|Dance|Deep House|Downtempo|Edm
-music-album-22jBLZ3vPKcUyK9JbzXFo7,YEBO,WizTheMc,2025,6,Pop Rap
-music-album-48i37aZTC1prDr4EcpQeEa,ANTI,Rihanna,2016,42,Pop|R&B|Contemporary R&B|Dance-Pop|Hip Hop
-music-album-20dY0uZi9SzfrcWYfiWGqH,Play,Ed Sheeran,2025,26,Pop|Folk Pop|Dance-Pop|Folk|Singer-Songwriter
-music-album-5Xd0KCzb0EJtPbUEiyxYVH,1432,Katy Perry,2024,38,Pop|Pop Rock|Bubblegum Pop|Dance-Pop|Electropop
-music-album-2k4FmEtXR0WiDW0Ac2QArT,petal,Ariana Grande,2026,12,Pop|R&B|Dance-Pop|Contemporary R&B|Trap Soul
-music-album-7GToxH8az0ztPfYCeOAqij,BROWN,Chris Brown,2026,24,Pop|Contemporary R&B|R&B|Dance|Electro House
-music-album-45gsxfnJ5Nt2RZp82SQenc,Sentio,Martin Garrix,2022,28,Edm|Big Room House|Electro House|Dance-Pop|Festival Progressive House
-music-album-3ARwSvDQv2OHYnLeDC3Lxi,MAYHEM,Lady Gaga,2025,50,Pop
-music-album-3KKqjBV0QBcgfTErzdkEd3,Rocket,Dominic Fike,2025,34,Alternative Pop
-music-album-6sOJ6rEt2KO0j7aLoNMLaK,TYCOON,Ty Dolla $ign,2025,50,R&B
-music-album-0OAv7DCME2AV4q1KPO95HY,ICEMAN,Drake,2026,98,Hip Hop|R&B|Contemporary R&B|Pop Rap|Alternative R&B
-music-album-0P6B5R3yRSkhkmequL5Yno,HABIBTI,Drake,2026,98,Hip Hop|R&B|Contemporary R&B|Pop Rap|Alternative R&B
-music-album-6bpGiBLjfOiSyzLSQlfnp7,Pangaea,A.Baby,2019,50,Hip Hop
-music-album-7dqftJ3kas6D0VAdmt3k3V,Stories,Avicii,2015,74,Progressive House|Edm|Electro House|Dance-Pop|Electropop
-music-album-5yrqPWuCSAo6beZdIBYAUU,Nu King,Jason Derulo,2024,66,Pop|R&B|Contemporary R&B|Dance|Dance-Pop
-music-album-35fwDYviCsLcCqqPIRP7aM,HOW DO I,楊美娜,2020,50,Electropop
-music-album-5lkNnHVlnCCCV304t89wOH,My House,Flo Rida,2015,8,Pop Rap|Dance-Pop|Hip Hop|Electronic|Electropop
-music-album-6GF0TQYbcWHcZpvt0bTP2D,WITHERED,d4vd,2025,76,Alternative R&B|Contemporary R&B|Indie Pop|Lo-Fi
-music-album-1nPRTKmS3Bn0f2ih11i2aH,UNDERDOGS,Pitbull,2025,30,Dance-Pop|Electropop|Dance|Electro House|Eurodance
-music-album-7eLwoxxWs6lfkVYJGkGNbk,Wild Ones,Flo Rida,2012,8,Pop Rap|Dance-Pop|Hip Hop|Electronic|Electropop
-music-album-2yqTCkRbi6qYFaOiDXn4cT,On My Own,Young Roe Escobar,2020,50,Hip Hop
-music-album-6VYjqAdWExFAfDdAudVT23,Fireflies,Martin Garrix,2026,28,Edm|Big Room House|Electro House|Dance-Pop|Festival Progressive House
-music-album-669luV9w3ueINz1Jg5pBU2,Highway 79,Ne-Yo,2026,50,R&B
-music-album-5RV2TNyjylqWJNxQyHBTeJ,VULTURES 2,Ty Dolla $ign,2024,50,R&B
-music-album-3o81FH5FTYVtoBQOZr3T7y,Fancy That,PinkPantheress,2025,54,Uk Garage|Drum And Bass|Alternative Pop|Future Garage|Jungle
-music-album-2qwv7hNjSGfLarHY2adeq9,14 minutes,Dominic Fike,2024,34,Alternative Pop
-music-album-3M5cmrMP6IkqcrpHKOwO6e,CTRL ESCAPE,John Summit,2026,36,Dance|Edm|House|Progressive House
-music-album-5Er818ARb7me75pPmqlhMK,Happy Vibes,Pritam,2026,20,Filmi
-music-album-6FJxoadUE4JNVwWHghBwnb,RENAISSANCE,Beyoncé,2022,50,R&B
-music-album-57TzZhbqvYoUBzJSVKFVlG,Thriller 40,Michael Jackson,2022,50,R&B
-music-album-0nte5x6fXd37Nt7jALSmx0,Midnight Sun,Zara Larsson,2025,92,Dance-Pop|Electropop|Pop|Contemporary R&B|Alternative Pop
-music-album-4BbsHmXEghoPPevQjPnHXx,F-1 Trillion,Post Malone,2024,84,Hip Hop|Pop Rap|Trap|Alternative R&B|Cloud Rap
-music-album-4jI9SU1GmpIVhHMuYZuvX7,The Fall-Off,J. Cole,2026,44,Hip Hop
-music-album-7vI4iTxDmgEN63liQHPEX1,The Romantic,Bruno Mars,2026,46,Pop|Funk|R&B|Contemporary R&B|Hip Hop
-music-album-0cMIntDigHjfYqnvgJjd3Q,Love Is Like,Maroon 5,2025,48,Pop|Pop Rock|Rock|Alternative Rock|Dance-Pop
-music-album-5r36AJ6VOJtp00oxSkBZ5h,Harry's House,Harry Styles,2022,52,Pop|Funk|New Wave|Rock|Soft Rock
-music-album-3edu0vIRVJ6vcK3yagi6oS,All 4 Nothing,LAUV,2022,50,Alternative Pop|Electropop|Indie Pop|Pop|R&B
-music-album-4gCNyS7pidfK3rKWhB3JOY,FOUR (Deluxe),One Direction,2014,32,Pop|Dance-Pop|Pop Rock|Teen Pop|Folk Pop
-music-album-0luMDIjG1HiinBas3na7vc,blog era boyz,mgk,2026,18,Hip Hop|Pop Punk|Pop Rap|Rap Rock
-music-album-6BzxX6zkDsYKFJ04ziU5xQ,COWBOY CARTER,Beyoncé,2024,50,R&B
-music-album-3IKW2jLFBTUGEIwJha62vD,Do That Again,Malcolm Todd,2026,50,R&B
-music-album-0beloHUnrqAmH58rSMxDoa,BEAUTIFUL DAY,Akon,2026,50,R&B
-music-album-1D06fz3cuob62ysTS8k6gu,GUTS (spilled),Olivia Rodrigo,2024,50,Pop
-music-album-0feQYIqb820lL4mrfNGFgd,Heartbreak City,Mall City,2021,50,Hip Hop
-music-album-4X34Hcq2vtMhCLL4qgLcua,23 & Gettin' It,Yung J,2019,50,Hip Hop
-music-album-5apkkoLPJJYZcghFfuNTF3,BEFORE I FORGET,The Kid LAROI,2026,100,Hip Hop|Emo Rap|Pop Rap
-music-album-01l3jTY261V3CESZR4dABz,Man of the Woods,Justin Timberlake,2018,50,Dance-Pop
-music-album-5ho4S2bnJJdF0uwT8YiQsw,Scarlet 2 CLAUDE,Doja Cat,2024,50,Dance-Pop
-music-album-12Lig9oAX9nvpWHft5cHgF,Fancy Some More?,PinkPantheress,2025,54,Uk Garage|Drum And Bass|Alternative Pop|Future Garage|Jungle
-music-album-5MsuDSyzQYhuL1U3mzgFKw,Sincere (Deluxe),Khalid,2024,50,R&B
-music-album-6KaEpgeZQF6ZVVAmSoZUrb,So Close To What,Tate McRae,2025,62,Pop|Dance-Pop|Contemporary R&B|Pop Rock
-music-album-2pHm3ZP2R3phzCYi7ilGN2,Comfort In Chaos,John Summit,2024,36,Dance|Edm|House|Progressive House
-music-album-1Q5WON8dw2JFLP5JVQXu1e,SOS Deluxe: LANA,SZA,2025,50,R&B
-music-album-35dut3ICqF3NEDkjxfzJJ1,Starboy (Deluxe),The Weeknd,2023,72,R&B|Alternative R&B|Contemporary R&B|Dance-Pop|Synth-Pop
-music-album-7mvXPtV4jvA1hp5Wx2FAJA,I Barely Know Her,sombr,2025,14,Indie Pop|Pop Rock
-music-album-3gXBpWIVRKhmc9ElGkBRZg,No $ucka Shit 2.0,Yung J,2019,50,Hip Hop
-music-album-4kADGUOhhfRSKoGdEH28ob,LOL : SLUTTY BASS,Tory Lanez,2026,56,Hip Hop|R&B|Alternative Hip Hop|Contemporary R&B|Dancehall
-music-album-3OxfaVgvTxUTy7276t7SPU,Hurry Up Tomorrow,The Weeknd,2025,72,R&B|Alternative R&B|Contemporary R&B|Dance-Pop|Synth-Pop
-music-album-1aqg30bNvLSWgShZgX4oop,Man’s Best Friend,Sabrina Carpenter,2025,22,Pop|Dance-Pop|Electropop
-music-album-37yJcGTf66AqApwqq0XJAu,Boomerang - Single,XLG Skenny,2014,50,Hip Hop
-music-album-06NJ4sxQJg1BiSGH9WkzRE,Summertime Friends,The Chainsmokers,2023,2,Electro House|Edm|Dance-Pop|Electronic|Electropop
-music-album-14WJvgC04sHE4m7HIXZ8Ri,Future Renaissance,Cheat Codes,2025,58,Edm
-music-album-27fL8TMJUfW4XRXZqougTh,My Body Isn't Ready,sombr,2026,14,Indie Pop|Pop Rock
-music-album-5K79FLRUCSysQnVESLcTdb,DeBÍ TiRAR MáS FOToS,Bad Bunny,2025,94,Reggaeton|Trap Latino|Latin|Hip Hop
-music-album-2kxdruQ1hg4Kt4mZSRR7I6,Malcolm Todd (still),Malcolm Todd,2025,50,R&B
-music-album-0YP647YNfIDRAJf7iMKTWu,Big Dreams Small City,Mall City,2021,50,Hip Hop
-music-album-4a6NzYL1YHRUgx9e3YZI6I,The Life of a Showgirl,Taylor Swift,2025,82,Pop|Country|Country Pop|Singer-Songwriter|Pop Rock
-music-album-2xBdaZLyGFkEgyScXSwZep,One Night in Nashville,Cheat Codes,2023,58,Edm
-music-album-3e9xFKdGt0oS5O4fMubFT5,after the sun goes down,Khalid,2025,50,R&B
-music-album-5cnrcbdcdt6BJgAig9Tn3P,I GOT YOU (Voyage ver.),LAUV,2024,50,Alternative Pop|Electropop|Indie Pop|Pop|R&B
-music-album-0iAv3656WbI551gLIRS6NB,On My Love (The Remixes),David Guetta,2023,88,House|Dance-Pop|Dance|Electro House|Electronic
-music-album-4VZ7jhV0wHpoNPCB7Vmiml,An Evening With Silk Sonic,Bruno Mars,2021,46,Pop|Funk|R&B|Contemporary R&B|Hip Hop
-music-album-716B2iWcwoKolCXrqwLGQh,Everything I Thought It Was,Justin Timberlake,2024,50,Dance-Pop
-music-album-6NC5rf0j1JcmXhKNlZqWkr,Dua Lipa - Live From Mexico,Dua Lipa,2026,50,Dance-Pop
-music-album-4AIX5TN8oT656mgxRwDevJ,SO CLOSE TO WHAT??? (deluxe),Tate McRae,2025,62,Pop|Dance-Pop|Contemporary R&B|Pop Rock
-music-album-3Fpxa7OUrdGmqEebgoAF1E,So Far So Good (lofi remixes),The Chainsmokers,2022,2,Electro House|Edm|Dance-Pop|Electronic|Electropop
-music-album-56jg3KJcYmfL7RzYmG2O1Q,Trackhouse (Daytona 500 Edition),Pitbull,2024,30,Dance-Pop|Electropop|Dance|Electro House|Eurodance
-music-album-25bNaP0CRNhtjAwxRiFguT,Made You Think I Was Gone ...But,Tory Lanez,2026,56,Hip Hop|R&B|Alternative Hip Hop|Contemporary R&B|Dancehall
-music-album-4NhudMfmg58he4XRVDAahd,Where Silence Feels Good (Deluxe),WizTheMc,2022,6,Pop Rap
-music-album-1gMxiQQSg5zeu4htBosASY,Made In The A.M. (Deluxe Edition),One Direction,2015,32,Pop|Dance-Pop|Pop Rock|Teen Pop|Folk Pop
-music-album-4FftCsAcXXD1nFO9RFUNFO,nadie sabe lo que va a pasar mañana,Bad Bunny,2023,94,Reggaeton|Trap Latino|Latin|Hip Hop
-music-album-2AgkMlAL7P4mxNmk2wfKNE,Tickets To My Downfall (All Access),mgk,2025,18,Hip Hop|Pop Punk|Pop Rap|Rap Rock
-music-album-7j3QBadmH19j8ucnxTmVIQ,She Knows (with Akon) [The Remixes],David Guetta,2023,88,House|Dance-Pop|Dance|Electro House|Electronic
-music-album-3oPUIxsRBq2riLShD6V2m8,SWAG LIVE FROM COACHELLA (Weekend I),Justin Bieber,2026,60,Pop|Teen Pop|Dance-Pop|Contemporary Country|Pop Rap
-music-album-0kb4kXcdvie8iLvwCECifU,Michael: Songs From The Motion Picture,Michael Jackson,2026,50,R&B
-music-album-3LLmfLDh6xjeZGC1t0DZBX,That Sexy Love: 20 Years of Love Songs,Ne-Yo,2026,50,R&B
-music-album-1mbNqu5D67Ry2N9aJFMxTj,Jason Derulo (10th Anniversary Deluxe),Jason Derulo,2020,66,Pop|R&B|Contemporary R&B|Dance|Dance-Pop
-music-album-69BqE1V8Bzb9GCyeP1fFeR,"Kiss All The Time. Disco, Occasionally.",Harry Styles,2026,52,Pop|Funk|New Wave|Rock|Soft Rock
-music-album-3WZZF72ihlKPZBS4zSsNHl,you seem pretty sad for a girl so in love,Olivia Rodrigo,2026,50,Pop
-music-album-5akMIsx9jTHVmu5FBi0kTe,Locked & Loaded (Official Fortnite Anthem),d4vd,2025,76,Alternative R&B|Contemporary R&B|Indie Pop|Lo-Fi
-music-album-0JPItniR1C7tjd4ac2R1Vk,Dangerous Woman (Tenth Anniversary Edition),Ariana Grande,2026,12,Pop|R&B|Dance-Pop|Contemporary R&B|Trap Soul
-music-album-6QNMhoV8V0u7cFuhhUBOn7,The Life of a Showgirl + Acoustic Collection,Taylor Swift,2025,82,Pop|Country|Country Pop|Singer-Songwriter|Pop Rock
-music-album-2uxxgYDgTR08xPIU1Ngo4g,Cocktail 2 (Original Motion Picture Soundtrack),Pritam,2026,20,Filmi
-music-album-2fSAC0ZiYnwKfzLEvyaMm8,2014 Forest Hills Drive (10 Year Anniversary Edition),J. Cole,2024,44,Hip Hop
-music-album-5FKnRUB5lt7z5ac1lmu3BE,The Devil Wears Prada 2 (Music From The Motion Picture),Lady Gaga,2026,50,Pop
+item_id,name,artist,year,popularity,genres,image_url
+music-album-1cqqIH16XzBnDchrXJ9Enf,Vie,Doja Cat,2025,50,Dance-Pop,https://i.scdn.co/image/ab67616d0000b2733b219fb53c69f313f90fd4ce
+music-album-07w0rG5TETcyihsEIZR3qG,SOS,SZA,2022,50,R&B,https://i.scdn.co/image/ab67616d0000b273bc18bdade69ec5ef0bb25b17
+music-album-3jxt1S4JtW4uFalBwlfehS,143,Katy Perry,2024,38,Pop|Pop Rock|Bubblegum Pop|Dance-Pop|Electropop,https://i.scdn.co/image/ab67616d0000b273c21cdbedd49f4a5809cf7be9
+music-album-6Ad1E9vl75ZB3Ir87zwXIJ,TIM,Avicii,2019,74,Progressive House|Edm|Electro House|Dance-Pop|Electropop,https://i.scdn.co/image/ab67616d0000b273660ee24281a547103f466ff5
+music-album-5BrjR0P59l9SsbODztqs3q,KYGO,Kygo,2024,64,Tropical House|Dance|Deep House|Downtempo|Edm,https://i.scdn.co/image/ab67616d0000b273d8a83eeef1ad61cf199ce22d
+music-album-22jBLZ3vPKcUyK9JbzXFo7,YEBO,WizTheMc,2025,6,Pop Rap,https://i.scdn.co/image/ab67616d0000b27312a333a62cf1a898ce04218a
+music-album-48i37aZTC1prDr4EcpQeEa,ANTI,Rihanna,2016,42,Pop|R&B|Contemporary R&B|Dance-Pop|Hip Hop,https://i.scdn.co/image/ab67616d0000b2737b688587a6754481c53f6bb7
+music-album-20dY0uZi9SzfrcWYfiWGqH,Play,Ed Sheeran,2025,26,Pop|Folk Pop|Dance-Pop|Folk|Singer-Songwriter,https://i.scdn.co/image/ab67616d0000b273b07c28bb3192bdfb585fb438
+music-album-5Xd0KCzb0EJtPbUEiyxYVH,1432,Katy Perry,2024,38,Pop|Pop Rock|Bubblegum Pop|Dance-Pop|Electropop,https://i.scdn.co/image/ab67616d0000b273ddac71a12622bdc7e9d3e795
+music-album-2k4FmEtXR0WiDW0Ac2QArT,petal,Ariana Grande,2026,12,Pop|R&B|Dance-Pop|Contemporary R&B|Trap Soul,https://i.scdn.co/image/ab67616d0000b2738baf677ee2d8dda6cc9fcbd7
+music-album-7GToxH8az0ztPfYCeOAqij,BROWN,Chris Brown,2026,24,Pop|Contemporary R&B|R&B|Dance|Electro House,https://i.scdn.co/image/ab67616d0000b2734b28d4d23dc56dc3ceda4b5d
+music-album-45gsxfnJ5Nt2RZp82SQenc,Sentio,Martin Garrix,2022,28,Edm|Big Room House|Electro House|Dance-Pop|Festival Progressive House,https://i.scdn.co/image/ab67616d0000b273edba220be76f96d51bd38838
+music-album-3ARwSvDQv2OHYnLeDC3Lxi,MAYHEM,Lady Gaga,2025,50,Pop,https://i.scdn.co/image/ab67616d0000b2738d1cf82837651f08ac1ca1ca
+music-album-3KKqjBV0QBcgfTErzdkEd3,Rocket,Dominic Fike,2025,34,Alternative Pop,https://i.scdn.co/image/ab67616d0000b273f83bcf37c54cd2ade3ecaec8
+music-album-6sOJ6rEt2KO0j7aLoNMLaK,TYCOON,Ty Dolla $ign,2025,50,R&B,https://i.scdn.co/image/ab67616d0000b273712be553f73989a1b7607674
+music-album-0OAv7DCME2AV4q1KPO95HY,ICEMAN,Drake,2026,98,Hip Hop|R&B|Contemporary R&B|Pop Rap|Alternative R&B,https://i.scdn.co/image/ab67616d0000b273fe9d3ab9adb1d3b59835b81c
+music-album-0P6B5R3yRSkhkmequL5Yno,HABIBTI,Drake,2026,98,Hip Hop|R&B|Contemporary R&B|Pop Rap|Alternative R&B,https://i.scdn.co/image/ab67616d0000b273b92879e45761d711016476df
+music-album-6bpGiBLjfOiSyzLSQlfnp7,Pangaea,A.Baby,2019,50,Hip Hop,https://i.scdn.co/image/ab67616d0000b273f4aff8a442f871d6a9dcb781
+music-album-7dqftJ3kas6D0VAdmt3k3V,Stories,Avicii,2015,74,Progressive House|Edm|Electro House|Dance-Pop|Electropop,https://i.scdn.co/image/ab67616d0000b2735393c5d3cac806092a9bc468
+music-album-5yrqPWuCSAo6beZdIBYAUU,Nu King,Jason Derulo,2024,66,Pop|R&B|Contemporary R&B|Dance|Dance-Pop,https://i.scdn.co/image/ab67616d0000b273e61bf150469db99447be6206
+music-album-35fwDYviCsLcCqqPIRP7aM,HOW DO I,楊美娜,2020,50,Electropop,https://i.scdn.co/image/ab67616d0000b273dbf11c2edbc927b5c3f4df0f
+music-album-5lkNnHVlnCCCV304t89wOH,My House,Flo Rida,2015,8,Pop Rap|Dance-Pop|Hip Hop|Electronic|Electropop,https://i.scdn.co/image/ab67616d0000b2736ba3d11e51c7df825292307f
+music-album-6GF0TQYbcWHcZpvt0bTP2D,WITHERED,d4vd,2025,76,Alternative R&B|Contemporary R&B|Indie Pop|Lo-Fi,https://i.scdn.co/image/ab67616d0000b273a48a6e3a1846038249c61537
+music-album-1nPRTKmS3Bn0f2ih11i2aH,UNDERDOGS,Pitbull,2025,30,Dance-Pop|Electropop|Dance|Electro House|Eurodance,https://i.scdn.co/image/ab67616d0000b273fa853d9769c89d08a74983bb
+music-album-7eLwoxxWs6lfkVYJGkGNbk,Wild Ones,Flo Rida,2012,8,Pop Rap|Dance-Pop|Hip Hop|Electronic|Electropop,https://i.scdn.co/image/ab67616d0000b27315785fa4f22f8c50902b3a42
+music-album-2yqTCkRbi6qYFaOiDXn4cT,On My Own,Young Roe Escobar,2020,50,Hip Hop,https://i.scdn.co/image/ab67616d0000b273243d0a41d67a027d5c6982e2
+music-album-6VYjqAdWExFAfDdAudVT23,Fireflies,Martin Garrix,2026,28,Edm|Big Room House|Electro House|Dance-Pop|Festival Progressive House,https://i.scdn.co/image/ab67616d0000b27347ff4d4b28c0f4fad26667df
+music-album-669luV9w3ueINz1Jg5pBU2,Highway 79,Ne-Yo,2026,50,R&B,https://i.scdn.co/image/ab67616d0000b2733d5be3d2c3c116e229fa27b7
+music-album-5RV2TNyjylqWJNxQyHBTeJ,VULTURES 2,Ty Dolla $ign,2024,50,R&B,https://i.scdn.co/image/ab67616d0000b273fb9cedd86a3d08dc053a550d
+music-album-3o81FH5FTYVtoBQOZr3T7y,Fancy That,PinkPantheress,2025,54,Uk Garage|Drum And Bass|Alternative Pop|Future Garage|Jungle,https://i.scdn.co/image/ab67616d0000b2732a6a5bd7ec690d91a384245d
+music-album-2qwv7hNjSGfLarHY2adeq9,14 minutes,Dominic Fike,2024,34,Alternative Pop,https://i.scdn.co/image/ab67616d0000b2730297fb98f81fc0b611fcf71d
+music-album-3M5cmrMP6IkqcrpHKOwO6e,CTRL ESCAPE,John Summit,2026,36,Dance|Edm|House|Progressive House,https://i.scdn.co/image/ab67616d0000b273edd455c68b4f20c12a76c8c6
+music-album-5Er818ARb7me75pPmqlhMK,Happy Vibes,Pritam,2026,20,Filmi,https://i.scdn.co/image/ab67616d0000b273d48c4f0da042a2b884c3cfa7
+music-album-6FJxoadUE4JNVwWHghBwnb,RENAISSANCE,Beyoncé,2022,50,R&B,https://i.scdn.co/image/ab67616d0000b27369a3c061676c2020adfe8315
+music-album-57TzZhbqvYoUBzJSVKFVlG,Thriller 40,Michael Jackson,2022,50,R&B,https://i.scdn.co/image/ab67616d0000b2734cd83028e3741cda57d0c4bc
+music-album-0nte5x6fXd37Nt7jALSmx0,Midnight Sun,Zara Larsson,2025,92,Dance-Pop|Electropop|Pop|Contemporary R&B|Alternative Pop,https://i.scdn.co/image/ab67616d0000b27393872dded9b6fe861ac52752
+music-album-4BbsHmXEghoPPevQjPnHXx,F-1 Trillion,Post Malone,2024,84,Hip Hop|Pop Rap|Trap|Alternative R&B|Cloud Rap,https://i.scdn.co/image/ab67616d0000b27388208159b1b3c69eefdeb2e0
+music-album-4jI9SU1GmpIVhHMuYZuvX7,The Fall-Off,J. Cole,2026,44,Hip Hop,https://i.scdn.co/image/ab67616d0000b27380788f104c780412212e97e3
+music-album-7vI4iTxDmgEN63liQHPEX1,The Romantic,Bruno Mars,2026,46,Pop|Funk|R&B|Contemporary R&B|Hip Hop,https://i.scdn.co/image/ab67616d0000b2733eb8dc748f7efb1470f74395
+music-album-0cMIntDigHjfYqnvgJjd3Q,Love Is Like,Maroon 5,2025,48,Pop|Pop Rock|Rock|Alternative Rock|Dance-Pop,https://i.scdn.co/image/ab67616d0000b273ce86d53b3ee10aaf89c9d9c0
+music-album-5r36AJ6VOJtp00oxSkBZ5h,Harry's House,Harry Styles,2022,52,Pop|Funk|New Wave|Rock|Soft Rock,https://i.scdn.co/image/ab67616d0000b27382ce362511fb3d9dda6578ee
+music-album-3edu0vIRVJ6vcK3yagi6oS,All 4 Nothing,LAUV,2022,50,Alternative Pop|Electropop|Indie Pop|Pop|R&B,https://i.scdn.co/image/ab67616d0000b27337a04015658168ca6e6e604a
+music-album-4gCNyS7pidfK3rKWhB3JOY,FOUR (Deluxe),One Direction,2014,32,Pop|Dance-Pop|Pop Rock|Teen Pop|Folk Pop,https://i.scdn.co/image/ab67616d0000b27334a29f220057810cce98e1b4
+music-album-0luMDIjG1HiinBas3na7vc,blog era boyz,mgk,2026,18,Hip Hop|Pop Punk|Pop Rap|Rap Rock,https://i.scdn.co/image/ab67616d0000b2735aa5e59454d045f3c841f56e
+music-album-6BzxX6zkDsYKFJ04ziU5xQ,COWBOY CARTER,Beyoncé,2024,50,R&B,https://i.scdn.co/image/ab67616d0000b273208e593c3565dae1295b5a26
+music-album-3IKW2jLFBTUGEIwJha62vD,Do That Again,Malcolm Todd,2026,50,R&B,https://i.scdn.co/image/ab67616d0000b273a1cac678024bb37d83ab012c
+music-album-0beloHUnrqAmH58rSMxDoa,BEAUTIFUL DAY,Akon,2026,50,R&B,https://i.scdn.co/image/ab67616d0000b273d5b624eacb9bad2c370bf2dc
+music-album-1D06fz3cuob62ysTS8k6gu,GUTS (spilled),Olivia Rodrigo,2024,50,Pop,https://i.scdn.co/image/ab67616d0000b2734063d624ebf8ff67bc3701ee
+music-album-0feQYIqb820lL4mrfNGFgd,Heartbreak City,Mall City,2021,50,Hip Hop,https://i.scdn.co/image/ab67616d0000b273d86a29dd579d5539d292b4fc
+music-album-4X34Hcq2vtMhCLL4qgLcua,23 & Gettin' It,Yung J,2019,50,Hip Hop,https://i.scdn.co/image/ab67616d0000b273f18731bd7b4731e58b34f9f8
+music-album-5apkkoLPJJYZcghFfuNTF3,BEFORE I FORGET,The Kid LAROI,2026,100,Hip Hop|Emo Rap|Pop Rap,https://i.scdn.co/image/ab67616d0000b2734ee3d2ae694b3b78125a5443
+music-album-01l3jTY261V3CESZR4dABz,Man of the Woods,Justin Timberlake,2018,50,Dance-Pop,https://i.scdn.co/image/ab67616d0000b273d444296aa0ca8fada177e430
+music-album-5ho4S2bnJJdF0uwT8YiQsw,Scarlet 2 CLAUDE,Doja Cat,2024,50,Dance-Pop,https://i.scdn.co/image/ab67616d0000b273425c31a1dfbe3f62daf1413b
+music-album-12Lig9oAX9nvpWHft5cHgF,Fancy Some More?,PinkPantheress,2025,54,Uk Garage|Drum And Bass|Alternative Pop|Future Garage|Jungle,https://i.scdn.co/image/ab67616d0000b273684ecc5bc1b724d0106ad694
+music-album-5MsuDSyzQYhuL1U3mzgFKw,Sincere (Deluxe),Khalid,2024,50,R&B,https://i.scdn.co/image/ab67616d0000b273ee497f978d61a8f66b9717a2
+music-album-6KaEpgeZQF6ZVVAmSoZUrb,So Close To What,Tate McRae,2025,62,Pop|Dance-Pop|Contemporary R&B|Pop Rock,https://i.scdn.co/image/ab67616d0000b27381c06ae612adc448a9636365
+music-album-2pHm3ZP2R3phzCYi7ilGN2,Comfort In Chaos,John Summit,2024,36,Dance|Edm|House|Progressive House,https://i.scdn.co/image/ab67616d0000b273ac2be70b09319ac92b074fde
+music-album-1Q5WON8dw2JFLP5JVQXu1e,SOS Deluxe: LANA,SZA,2025,50,R&B,https://i.scdn.co/image/ab67616d0000b2735623d454ad0ffa8d0ebfd4ad
+music-album-35dut3ICqF3NEDkjxfzJJ1,Starboy (Deluxe),The Weeknd,2023,72,R&B|Alternative R&B|Contemporary R&B|Dance-Pop|Synth-Pop,https://i.scdn.co/image/ab67616d0000b2738ad8f5243d6534e03b656c8b
+music-album-7mvXPtV4jvA1hp5Wx2FAJA,I Barely Know Her,sombr,2025,14,Indie Pop|Pop Rock,https://i.scdn.co/image/ab67616d0000b2734229702de91cb3d3a4383302
+music-album-3gXBpWIVRKhmc9ElGkBRZg,No $ucka Shit 2.0,Yung J,2019,50,Hip Hop,https://i.scdn.co/image/ab67616d0000b27342ea4620dc5f2494b1643981
+music-album-4kADGUOhhfRSKoGdEH28ob,LOL : SLUTTY BASS,Tory Lanez,2026,56,Hip Hop|R&B|Alternative Hip Hop|Contemporary R&B|Dancehall,https://i.scdn.co/image/ab67616d0000b2733b092e418c01fbc0e87a2a3f
+music-album-3OxfaVgvTxUTy7276t7SPU,Hurry Up Tomorrow,The Weeknd,2025,72,R&B|Alternative R&B|Contemporary R&B|Dance-Pop|Synth-Pop,https://i.scdn.co/image/ab67616d0000b273de79f330bc297af3fae736da
+music-album-1aqg30bNvLSWgShZgX4oop,Man’s Best Friend,Sabrina Carpenter,2025,22,Pop|Dance-Pop|Electropop,https://i.scdn.co/image/ab67616d0000b273b1863bf95557ea7f357c4947
+music-album-37yJcGTf66AqApwqq0XJAu,Boomerang - Single,XLG Skenny,2014,50,Hip Hop,https://i.scdn.co/image/ab67616d0000b273cbcb50b55c5745535c477488
+music-album-06NJ4sxQJg1BiSGH9WkzRE,Summertime Friends,The Chainsmokers,2023,2,Electro House|Edm|Dance-Pop|Electronic|Electropop,https://i.scdn.co/image/ab67616d0000b273382c8dbf19c42c664f0c667f
+music-album-14WJvgC04sHE4m7HIXZ8Ri,Future Renaissance,Cheat Codes,2025,58,Edm,https://i.scdn.co/image/ab67616d0000b2733dfbb85a31f09aa81196b936
+music-album-27fL8TMJUfW4XRXZqougTh,My Body Isn't Ready,sombr,2026,14,Indie Pop|Pop Rock,https://i.scdn.co/image/ab67616d0000b27355615e9242bd96706c68a743
+music-album-5K79FLRUCSysQnVESLcTdb,DeBÍ TiRAR MáS FOToS,Bad Bunny,2025,94,Reggaeton|Trap Latino|Latin|Hip Hop,https://i.scdn.co/image/ab67616d0000b273bbd45c8d36e0e045ef640411
+music-album-2kxdruQ1hg4Kt4mZSRR7I6,Malcolm Todd (still),Malcolm Todd,2025,50,R&B,https://i.scdn.co/image/ab67616d0000b273436145513f91113c10292b12
+music-album-0YP647YNfIDRAJf7iMKTWu,Big Dreams Small City,Mall City,2021,50,Hip Hop,https://i.scdn.co/image/ab67616d0000b27315904cfca5fb8dab468f87af
+music-album-4a6NzYL1YHRUgx9e3YZI6I,The Life of a Showgirl,Taylor Swift,2025,82,Pop|Country|Country Pop|Singer-Songwriter|Pop Rock,https://i.scdn.co/image/ab67616d0000b273d7812467811a7da6e6a44902
+music-album-2xBdaZLyGFkEgyScXSwZep,One Night in Nashville,Cheat Codes,2023,58,Edm,https://i.scdn.co/image/ab67616d0000b27370b48e0a39252db11fded7c5
+music-album-3e9xFKdGt0oS5O4fMubFT5,after the sun goes down,Khalid,2025,50,R&B,https://i.scdn.co/image/ab67616d0000b2737f2c135630aca1653c1e2104
+music-album-5cnrcbdcdt6BJgAig9Tn3P,I GOT YOU (Voyage ver.),LAUV,2024,50,Alternative Pop|Electropop|Indie Pop|Pop|R&B,https://i.scdn.co/image/ab67616d0000b273d112b7516a0a23058a819764
+music-album-0iAv3656WbI551gLIRS6NB,On My Love (The Remixes),David Guetta,2023,88,House|Dance-Pop|Dance|Electro House|Electronic,https://i.scdn.co/image/ab67616d0000b273df64246cfc5d668572b13b37
+music-album-4VZ7jhV0wHpoNPCB7Vmiml,An Evening With Silk Sonic,Bruno Mars,2021,46,Pop|Funk|R&B|Contemporary R&B|Hip Hop,https://i.scdn.co/image/ab67616d0000b2735f19f50677f8ded7021b8229
+music-album-716B2iWcwoKolCXrqwLGQh,Everything I Thought It Was,Justin Timberlake,2024,50,Dance-Pop,https://i.scdn.co/image/ab67616d0000b2730c03eb908cc6baece50c2426
+music-album-6NC5rf0j1JcmXhKNlZqWkr,Dua Lipa - Live From Mexico,Dua Lipa,2026,50,Dance-Pop,https://i.scdn.co/image/ab67616d0000b2736f2228fa7f3d5e012fd5ec1f
+music-album-4AIX5TN8oT656mgxRwDevJ,SO CLOSE TO WHAT??? (deluxe),Tate McRae,2025,62,Pop|Dance-Pop|Contemporary R&B|Pop Rock,https://i.scdn.co/image/ab67616d0000b273c40dccc1952bb5ed96986869
+music-album-3Fpxa7OUrdGmqEebgoAF1E,So Far So Good (lofi remixes),The Chainsmokers,2022,2,Electro House|Edm|Dance-Pop|Electronic|Electropop,https://i.scdn.co/image/ab67616d0000b2730e23bc823ea07dbf3fabc43e
+music-album-56jg3KJcYmfL7RzYmG2O1Q,Trackhouse (Daytona 500 Edition),Pitbull,2024,30,Dance-Pop|Electropop|Dance|Electro House|Eurodance,https://i.scdn.co/image/ab67616d0000b273a0bac1996f26274685db1520
+music-album-25bNaP0CRNhtjAwxRiFguT,Made You Think I Was Gone ...But,Tory Lanez,2026,56,Hip Hop|R&B|Alternative Hip Hop|Contemporary R&B|Dancehall,https://i.scdn.co/image/ab67616d0000b273768cc0d9d5f149a8a019e751
+music-album-4NhudMfmg58he4XRVDAahd,Where Silence Feels Good (Deluxe),WizTheMc,2022,6,Pop Rap,https://i.scdn.co/image/ab67616d0000b2733f406876a091cad87d44d467
+music-album-1gMxiQQSg5zeu4htBosASY,Made In The A.M. (Deluxe Edition),One Direction,2015,32,Pop|Dance-Pop|Pop Rock|Teen Pop|Folk Pop,https://i.scdn.co/image/ab67616d0000b2734a075ca70ae4143a37eb4fbe
+music-album-4FftCsAcXXD1nFO9RFUNFO,nadie sabe lo que va a pasar mañana,Bad Bunny,2023,94,Reggaeton|Trap Latino|Latin|Hip Hop,https://i.scdn.co/image/ab67616d0000b2732ea1f035463d11e1fc3b193d
+music-album-2AgkMlAL7P4mxNmk2wfKNE,Tickets To My Downfall (All Access),mgk,2025,18,Hip Hop|Pop Punk|Pop Rap|Rap Rock,https://i.scdn.co/image/ab67616d0000b27305162baf45042497f7240f8c
+music-album-7j3QBadmH19j8ucnxTmVIQ,She Knows (with Akon) [The Remixes],David Guetta,2023,88,House|Dance-Pop|Dance|Electro House|Electronic,https://i.scdn.co/image/ab67616d0000b273c8cdf1dec0c521453eb1a7cb
+music-album-3oPUIxsRBq2riLShD6V2m8,SWAG LIVE FROM COACHELLA (Weekend I),Justin Bieber,2026,60,Pop|Teen Pop|Dance-Pop|Contemporary Country|Pop Rap,https://i.scdn.co/image/ab67616d0000b273cd94f516227c9a79df614af3
+music-album-0kb4kXcdvie8iLvwCECifU,Michael: Songs From The Motion Picture,Michael Jackson,2026,50,R&B,https://i.scdn.co/image/ab67616d0000b273e33bf4a404a7a27a8aa4d727
+music-album-3LLmfLDh6xjeZGC1t0DZBX,That Sexy Love: 20 Years of Love Songs,Ne-Yo,2026,50,R&B,https://i.scdn.co/image/ab67616d0000b27365fcb748111ff97d5ca047d8
+music-album-1mbNqu5D67Ry2N9aJFMxTj,Jason Derulo (10th Anniversary Deluxe),Jason Derulo,2020,66,Pop|R&B|Contemporary R&B|Dance|Dance-Pop,https://i.scdn.co/image/ab67616d0000b273d3f2b323e8b0d41d8ad06062
+music-album-69BqE1V8Bzb9GCyeP1fFeR,"Kiss All The Time. Disco, Occasionally.",Harry Styles,2026,52,Pop|Funk|New Wave|Rock|Soft Rock,https://i.scdn.co/image/ab67616d0000b27374959140f550b11049c18a38
+music-album-3WZZF72ihlKPZBS4zSsNHl,you seem pretty sad for a girl so in love,Olivia Rodrigo,2026,50,Pop,https://i.scdn.co/image/ab67616d0000b2735cf234eeb7a2edf44bf64a46
+music-album-5akMIsx9jTHVmu5FBi0kTe,Locked & Loaded (Official Fortnite Anthem),d4vd,2025,76,Alternative R&B|Contemporary R&B|Indie Pop|Lo-Fi,https://i.scdn.co/image/ab67616d0000b27316e67996873944b8157fdf0b
+music-album-0JPItniR1C7tjd4ac2R1Vk,Dangerous Woman (Tenth Anniversary Edition),Ariana Grande,2026,12,Pop|R&B|Dance-Pop|Contemporary R&B|Trap Soul,https://i.scdn.co/image/ab67616d0000b2737151e78278fb3e6db94c7132
+music-album-6QNMhoV8V0u7cFuhhUBOn7,The Life of a Showgirl + Acoustic Collection,Taylor Swift,2025,82,Pop|Country|Country Pop|Singer-Songwriter|Pop Rock,https://i.scdn.co/image/ab67616d0000b273f756bdc2c11a985dc0c06d94
+music-album-2uxxgYDgTR08xPIU1Ngo4g,Cocktail 2 (Original Motion Picture Soundtrack),Pritam,2026,20,Filmi,https://i.scdn.co/image/ab67616d0000b273adb1a15b21a4b9728285ca94
+music-album-2fSAC0ZiYnwKfzLEvyaMm8,2014 Forest Hills Drive (10 Year Anniversary Edition),J. Cole,2024,44,Hip Hop,https://i.scdn.co/image/ab67616d0000b27376bee82c4cf5e93f31fb1772
+music-album-5FKnRUB5lt7z5ac1lmu3BE,The Devil Wears Prada 2 (Music From The Motion Picture),Lady Gaga,2026,50,Pop,https://i.scdn.co/image/ab67616d0000b273973cd0eba9aa4d0ce3b08228
