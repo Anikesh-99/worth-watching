@@ -3,7 +3,12 @@
 **▶ Live demo: https://anikesh-99.github.io/worth-watching/**
 
 A personalized recommendation **platform** that answers, spoiler-free:
-*"What's actually worth my time tonight?"* — across live sport, anime, books, and music.
+*"What's actually worth my time tonight?"* — across live sport (F1, NBA, Premier
+League, Champions League), anime, books, and music, with an **Upcoming** view
+for events that haven't happened yet.
+
+The public demo is a **Netflix-style** home screen (billboard + reason-labeled
+shelves + "% match") with real cover art and matchup crests.
 
 > The live demo is a static build (`web_static/`): the real Python pipeline's
 > scores are precomputed into JSON, and the browser only filters and ranks. It
@@ -12,11 +17,22 @@ A personalized recommendation **platform** that answers, spoiler-free:
 > experience.
 
 Two very different recommendation engines sit behind **one `Recommender`
-interface**: a sports **excitement** ranker (F1 + NBA) and a **content-based**
-media ranker (anime + books, sharing one `ContentRecommender`). A sports match,
-an unwatched anime, and an unread book are the same problem shape — score an
-item's personalized worth-your-time-ness, then rank a candidate set — which is
-what makes this a platform rather than three scripts.
+interface**: a sports **excitement** ranker (F1 + NBA + soccer) and a
+**content-based** media ranker (anime + books + music, sharing one
+`ContentRecommender`). A sports match, an unwatched anime, and an unread book are
+the same problem shape — score an item's personalized worth-your-time-ness, then
+rank a candidate set — which is what makes this a platform rather than scripts.
+
+### Upcoming events, and an honest finding
+
+For events that haven't happened, there's no box score, so excitement must be
+**predicted** from pre-game features. Built and evaluated with a temporal split
+(a test proves no lookahead), the result was a clean negative: pre-game signals
+barely predict realized excitement (NBA Spearman ≈ 0.02) — sports drama is
+high-variance and largely unforeseeable. So the **Upcoming** view doesn't fake a
+thriller-predictor; it ranks by a transparent **watchability index** (stakes +
+matchup pedigree + competitiveness) × personalization, honestly. The learned
+predictor stays in the repo as the documented artifact.
 
 ## Architecture
 
