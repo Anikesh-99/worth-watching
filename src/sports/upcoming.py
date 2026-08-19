@@ -50,5 +50,8 @@ class UpcomingRecommender:
             # the "you follow …" reason so stakes isn't stated twice.
             rs += watch_reasons(row, _tier(score)) + [r for r in preasons if "you follow" in r]
             scored.append(Scored(item=item, excitement=float(w), personalization=mult, reasons=rs))
-        ordered = sorted(scored, key=lambda s: s.score, reverse=True)
+        # "Coming up" is chronological — soonest first — with watchability breaking
+        # ties within the same day. (Ranking far-future high-stakes events to the
+        # top is wrong for an "upcoming" view.)
+        ordered = sorted(scored, key=lambda s: (s.item.when, -s.score))
         return [Ranked(rank=i + 1, scored=s) for i, s in enumerate(ordered)][:top]
