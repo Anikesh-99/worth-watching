@@ -9,8 +9,8 @@ cache_dir: data/f1cache
 # Seasons pulled into the tidy dataset. Temporal evaluation splits on these:
 # train on the earlier seasons, test on the latest (see src/core/evaluation.py).
 seasons:
-  train: [2021, 2022, 2023]
-  test: [2024]
+  train: [2021, 2022, 2023, 2024]
+  test: [2025, 2026]   # 2025 complete + 2026 races run so far
 
 # Personal taste inputs for the personalization layer (your team/drivers).
 # Edit these to yours — they drive the spoiler-free "why watch" reasons.
