@@ -2,142 +2,252 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Worth Watching?</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <style>
-  :root { --bg:#0a0b0e; --card:#141821; --line:#232833; --ink:#f4f5f7; --muted:#9aa1ad;
-    --accent:#e11d48; --match:#34d399; }
-  * { box-sizing: border-box; }
-  body { margin:0; background:var(--bg); color:var(--ink);
-    font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }
-  a { color:var(--ink); text-decoration:none; }
-  .nav { display:flex; align-items:center; justify-content:space-between; padding:18px 40px; position:sticky; top:0;
-    background:linear-gradient(180deg,rgba(10,11,14,.96),rgba(10,11,14,.0)); z-index:20; }
-  .brand { font-size:16px; font-weight:900; letter-spacing:.14em; color:var(--accent); }
-  .navlinks { display:flex; gap:20px; font-size:13px; color:#d1d5db; }
-  .navlinks span { cursor:pointer; }
-  .navlinks .on { color:#fff; font-weight:600; }
-  .avatar { width:28px; height:28px; border-radius:5px; background:linear-gradient(135deg,#e11d48,#7c3aed); }
+  :root{
+    --ground:#150f1c; --ground2:#1c1526; --panel:#241a30; --line:#3a2c48;
+    --ink:#f7eef6; --muted:#b6a2c4; --faint:#7d6d8c;
+    --gold:#ffb43a; --coral:#ff5d73; --plum:#8b5cf6; --live:#4ade80;
+    --sans:"Helvetica Neue",Helvetica,Arial,system-ui,sans-serif;
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    --mono:ui-monospace,Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5;
+    background-image:
+      radial-gradient(900px 480px at 15% -8%, rgba(255,93,115,.14), transparent 60%),
+      radial-gradient(1000px 520px at 92% 4%, rgba(139,92,246,.16), transparent 62%),
+      linear-gradient(180deg,#160f1e,#120b18);
+    background-attachment:fixed;}
+  a{color:inherit;text-decoration:none;}
+  .wrap{max-width:1200px;margin:0 auto;padding:0 26px 90px;}
 
-  .hero { position:relative; min-height:460px; display:flex; align-items:flex-end; overflow:hidden;
-    padding:0 40px 54px; margin-top:-72px; }
-  .hero .scrim { position:absolute; inset:0; z-index:0; }
-  .hero .inner { position:relative; z-index:1; max-width:640px; }
-  .eyebrow { font-size:10px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; color:#fff;
-    padding:3px 8px; border-radius:4px; display:inline-block; }
-  .hero h1 { margin:14px 0 12px; font-size:46px; line-height:1.02; letter-spacing:-.02em; font-weight:850;
-    text-shadow:0 2px 20px rgba(0,0,0,.6); }
-  .hmeta { display:flex; align-items:center; gap:14px; margin-bottom:12px; font-size:14px; flex-wrap:wrap; }
-  .match { color:var(--match); font-weight:700; }
-  .hreason { font-size:15px; color:#e5e7eb; margin:0 0 20px; max-width:540px; }
-  .btns { display:flex; gap:12px; }
-  .btn { display:flex; align-items:center; gap:8px; font-size:15px; font-weight:700; padding:11px 22px; border-radius:6px; cursor:pointer; }
-  .btn-p { background:#fff; color:#0a0b0e; } .btn-s { background:rgba(109,115,128,.5); color:#fff; font-weight:600; }
+  .mast{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:26px 0;flex-wrap:wrap;}
+  .brand{font-weight:800;font-size:19px;letter-spacing:.02em;text-transform:uppercase;}
+  .brand span{color:var(--gold);}
+  .mark{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:6px 13px;}
 
-  .rows { padding:0 40px 60px; margin-top:-30px; position:relative; z-index:2; }
-  .shelf { margin-bottom:30px; }
-  .shelf h2 { font-size:19px; font-weight:700; margin:0 0 12px; }
-  .shelf .sub { font-size:13px; font-weight:500; color:var(--muted); }
-  .row { display:flex; gap:12px; overflow-x:auto; padding-bottom:8px; scrollbar-width:thin; }
-  .row::-webkit-scrollbar { height:8px; } .row::-webkit-scrollbar-thumb { background:#232833; border-radius:8px; }
-  .tile { position:relative; border-radius:6px; overflow:hidden; flex:0 0 auto; box-shadow:0 6px 16px rgba(0,0,0,.5); }
-  .tile img.cover { width:100%; height:100%; object-fit:cover; display:block; }
-  .lbl { position:absolute; top:8px; left:8px; font-size:9px; font-weight:800; letter-spacing:.04em; text-transform:uppercase; color:#fff; padding:2px 6px; border-radius:4px; }
-  .tname { position:absolute; left:8px; right:8px; bottom:7px; font-weight:800; font-size:13px; text-shadow:0 1px 6px rgba(0,0,0,.8); }
-  .cap { font-size:11px; color:#b6bcc7; margin-top:6px; line-height:1.35; }
-  .crest { width:42px; height:42px; object-fit:contain; filter:drop-shadow(0 2px 5px rgba(0,0,0,.6)); }
-  .foot { color:var(--muted); font-size:12px; text-align:center; padding:0 40px 40px; }
-  .foot a { color:#60a5fa; }
-  @media (max-width:640px){ .nav,.hero,.rows,.foot{ padding-left:16px; padding-right:16px; } .hero h1{ font-size:32px; } }
+  .hero{display:grid;grid-template-columns:minmax(0,290px) 1fr;gap:38px;align-items:center;padding:14px 0 42px;min-height:300px;}
+  .hero-poster{position:relative;border-radius:12px;overflow:hidden;aspect-ratio:2/3;
+    box-shadow:0 30px 70px -20px rgba(0,0,0,.8),0 0 0 1px rgba(255,255,255,.05);transform:rotate(-1.4deg);background:var(--panel);}
+  .hero-poster img{width:100%;height:100%;object-fit:cover;display:block;}
+  .hero-poster .glow{position:absolute;inset:0;box-shadow:inset 0 -60px 80px -30px rgba(21,15,28,.9);}
+  .hero-txt .kick{font-family:var(--mono);font-size:12px;letter-spacing:.26em;text-transform:uppercase;color:var(--gold);margin-bottom:16px;}
+  .hero-txt h1{font-family:var(--serif);font-weight:600;font-size:clamp(34px,5vw,58px);line-height:1;margin:0 0 18px;letter-spacing:-.015em;text-wrap:balance;}
+  .hero-meta{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px;}
+  .score{display:inline-flex;align-items:baseline;gap:6px;font-weight:800;font-size:14px;color:var(--ground);background:var(--gold);border-radius:8px;padding:7px 12px;}
+  .score b{font-size:19px;line-height:1;}
+  .chip{font-family:var(--mono);font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:6px 12px;}
+  .chip.tier{color:var(--ink);border-color:var(--coral);}
+  .hero-txt p{font-family:var(--serif);font-size:18px;line-height:1.55;color:#e9dced;max-width:48ch;margin:0 0 20px;}
+  .seal{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--faint);}
+  .seal::before{content:"";width:24px;height:24px;border-radius:50%;border:1.5px solid var(--faint);background:radial-gradient(circle,transparent 45%,rgba(125,109,140,.25) 46%);}
+
+  .sec-head{display:flex;align-items:baseline;gap:16px;margin:8px 0 18px;flex-wrap:wrap;}
+  .sec-head h2{font-weight:800;font-size:24px;letter-spacing:-.01em;margin:0;text-transform:uppercase;}
+  .sec-head .sub{font-family:var(--mono);font-size:12px;color:var(--faint);letter-spacing:.05em;}
+  .sec-head .live{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--live);}
+  .sec-head .live::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--live);box-shadow:0 0 0 3px rgba(74,222,128,.2);}
+
+  .fixtures{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;padding-bottom:44px;border-bottom:1px solid var(--line);}
+  @media(max-width:900px){.fixtures{grid-template-columns:repeat(2,1fr);}}
+  @media(max-width:480px){.fixtures{grid-template-columns:1fr;}}
+  .fx{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--ground2);transition:.15s;}
+  .fx:hover{transform:translateY(-3px);border-color:var(--gold);}
+  .fx .bar{height:4px;}
+  .fx .body{padding:15px 16px 14px;}
+  .fx .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+  .fx .lg{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.13em;color:var(--muted);text-transform:uppercase;}
+  .fx .date{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--faint);text-transform:uppercase;}
+  .fx .vs{display:flex;align-items:center;justify-content:center;gap:10px;margin:2px 0;}
+  .fx .side{display:flex;flex-direction:column;align-items:center;gap:7px;flex:1;min-width:0;}
+  .fx .cr{width:44px;height:44px;object-fit:contain;filter:drop-shadow(0 3px 7px rgba(0,0,0,.55));}
+  .fx .side .nm{font-weight:800;font-size:13px;text-align:center;line-height:1.1;}
+  .fx .x{font-family:var(--serif);font-style:italic;color:var(--faint);font-size:15px;}
+  .fx .race{font-weight:800;font-size:19px;text-align:center;margin:14px 0 12px;letter-spacing:-.01em;line-height:1.1;}
+  .fx .foot{display:flex;justify-content:space-between;align-items:center;margin-top:12px;}
+  .fx .you{font-family:var(--mono);font-size:10px;letter-spacing:.05em;color:var(--gold);text-transform:uppercase;}
+  .fx .idx{font-weight:800;font-size:15px;color:var(--gold);}
+  .fx .idx small{color:var(--faint);font-weight:600;font-size:10px;}
+
+  .filters{display:flex;gap:8px;margin-left:auto;flex-wrap:wrap;}
+  .filters button{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);background:transparent;border:1px solid var(--line);border-radius:999px;padding:7px 14px;cursor:pointer;transition:.15s;}
+  .filters button[aria-pressed="true"]{color:var(--ground);background:var(--gold);border-color:var(--gold);}
+  .filters button:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
+  .wall{column-count:5;column-gap:16px;}
+  @media(max-width:1080px){.wall{column-count:4;}}
+  @media(max-width:820px){.wall{column-count:3;}}
+  @media(max-width:560px){.wall{column-count:2;}}
+  .tile{break-inside:avoid;margin-bottom:16px;position:relative;border-radius:12px;overflow:hidden;
+    box-shadow:0 16px 34px -18px rgba(0,0,0,.75),0 0 0 1px rgba(255,255,255,.04);display:block;transition:transform .18s;cursor:pointer;background:var(--panel);}
+  .tile:hover{transform:translateY(-4px);}
+  .tile>img{width:100%;display:block;}
+  .tile .tag{position:absolute;top:9px;left:9px;font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink);background:rgba(21,15,28,.72);border:1px solid rgba(255,255,255,.14);border-radius:6px;padding:4px 7px;z-index:2;}
+  .tile .pill{position:absolute;top:9px;right:9px;font-weight:800;font-size:12px;color:var(--ground);background:var(--gold);border-radius:6px;padding:3px 7px;line-height:1;z-index:2;}
+  .tile .veil{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:13px;background:linear-gradient(180deg,transparent 42%,rgba(15,10,20,.93));opacity:0;transition:opacity .18s;}
+  .tile:hover .veil,.tile:focus-within .veil{opacity:1;}
+  .tile .veil .t{font-family:var(--serif);font-weight:600;font-size:16px;line-height:1.15;margin-bottom:5px;}
+  .tile .veil .why{font-family:var(--mono);font-size:10.5px;color:var(--muted);letter-spacing:.02em;line-height:1.4;}
+  .tile .veil .why .tier{color:var(--gold);}
+  /* sports poster tile */
+  .poster{aspect-ratio:3/4;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:22px;
+    background:radial-gradient(120% 90% at 50% 0%,#2a2038,#140d1c);}
+  .poster .crs{display:flex;align-items:center;gap:16px;}
+  .poster .crs img{width:58px;height:58px;object-fit:contain;filter:drop-shadow(0 4px 9px rgba(0,0,0,.6));}
+  .poster .crs .x{font-family:var(--serif);font-style:italic;color:var(--faint);font-size:20px;}
+  .poster .lb{font-weight:800;font-size:16px;letter-spacing:-.01em;text-align:center;}
+
+  .foot{margin-top:52px;padding-top:22px;border-top:1px solid var(--line);font-family:var(--mono);font-size:12px;color:var(--faint);letter-spacing:.03em;line-height:1.9;}
+  .foot a{color:var(--gold);}
+  .empty{color:var(--muted);font-family:var(--mono);font-size:13px;padding:30px 0;}
+
+  @media(max-width:720px){.hero{grid-template-columns:1fr;} .hero-poster{max-width:220px;transform:none;}}
+  @media(prefers-reduced-motion:reduce){.tile,.fx{transition:none;}}
 </style>
 </head>
 <body>
-<div class="nav">
-  <div style="display:flex; align-items:center; gap:30px;">
-    <span class="brand">WORTH&nbsp;WATCHING</span>
-    <div class="navlinks"><span class="on">Home</span><span>Sports</span><span>Anime</span><span>Books</span><span>Music</span></div>
-  </div>
-  <div style="display:flex; align-items:center; gap:16px;">
-    <span style="font-size:11px; color:#93c5fd; border:1px solid rgba(96,165,250,.3); background:rgba(96,165,250,.12); padding:3px 9px; border-radius:999px;">spoiler-free</span>
-    <div class="avatar"></div>
-  </div>
-</div>
+<div class="wrap">
+  <header class="mast">
+    <div class="brand">WORTH <span>WATCHING</span></div>
+    <div class="mark">spoiler-free · ranked for you</div>
+  </header>
 
-<div class="hero" id="hero"></div>
-<div class="rows" id="rows"><p style="color:var(--muted); padding:40px 0;">Loading…</p></div>
-<p class="foot">Ranked by predicted excitement × taste · spoiler-free reasons only. Sports/anime/books cold-start; music reflects the author's Spotify taste. <a href="https://github.com/Anikesh-99/worth-watching">Source ›</a></p>
+  <section class="hero" id="hero"><p class="empty">Loading your picks…</p></section>
+
+  <div class="sec-head" id="fx-head" style="display:none;">
+    <h2>This weekend</h2><span class="live">Live fixtures</span>
+    <span class="sub">fresh from the schedule · ranked by watchability × your clubs</span>
+  </div>
+  <div class="fixtures" id="fixtures"></div>
+
+  <div class="sec-head" style="margin-top:44px;">
+    <h2>The wall</h2>
+    <span class="sub">everything worth your time — hover for the read, results stay sealed</span>
+    <div class="filters" id="filters"></div>
+  </div>
+  <div class="wall" id="wall"></div>
+
+  <footer class="foot" id="foot">
+    Ranked by a spoiler-free watchability score × your taste. Fixtures pulled live from the schedule;
+    cover art from AniList, Open Library &amp; Spotify. <a href="https://github.com/Anikesh-99/worth-watching">Source ›</a>
+  </footer>
+</div>
 
 <script>
 const $ = s => document.querySelector(s);
-const esc = s => String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const SPORT = { f1:{c:'#e10600',n:'F1'}, nba:{c:'#c8102e',n:'NBA'}, soccer:{c:'#16a34a',n:'SOCCER'} };
-const MEDIA = { anime:{c:'#7c3aed',n:'ANIME',w:118,h:172}, book:{c:'#0d9488',n:'BOOK',w:120,h:180}, music:{c:'#db2777',n:'MUSIC',w:150,h:150} };
-const GRAD = ['linear-gradient(150deg,#1b3a5c,#6CABDD)','linear-gradient(150deg,#3b0d24,#db2777)','linear-gradient(150deg,#1a1145,#7c3aed)','linear-gradient(150deg,#0b2a3a,#0ea5e9)','linear-gradient(150deg,#3a2408,#f59e0b)','linear-gradient(150deg,#08321f,#10b981)'];
-const grad = id => GRAD[Math.abs([...String(id)].reduce((a,c)=>a+c.charCodeAt(0),0))%GRAD.length];
-const pct = it => Math.min(99, Math.round((it.score||0)*100));
+const esc = s => String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const pct = it => Math.min(99, Math.max(1, Math.round((it.score||0)*100)));
+const TAG = {f1:'F1', nba:'NBA', soccer:'SOCCER', anime:'ANIME', book:'BOOK', music:'MUSIC'};
+const why = it => (it.reasons&&it.reasons.length) ? it.reasons.join(' · ') : 'ranked on your taste';
+const crest = u => u ? `<img class="cr" src="${esc(u)}" alt="" onerror="this.style.visibility='hidden'">` : '';
 
-function reasonLine(it){ return it.reasons && it.reasons.length ? esc(it.reasons.join(' · ')) : 'ranked on excitement'; }
-
-function sportTile(it){
-  const sp = SPORT[it.sport] || {c:'#6b7280', n:(it.sport||'').toUpperCase()};
-  const crest = u => u ? `<img class="crest" src="${esc(u)}" onerror="this.remove()">` : '';
-  // crest order follows each sport's label convention: soccer is home-first
-  // ("ARS v COV"), NBA is away-first ("DEN @ OKC").
-  const [c1, c2] = it.sport === 'soccer'
-    ? [it.home_logo, it.away_logo] : [it.away_logo, it.home_logo];
-  const inner = (it.home_logo||it.away_logo)
-    ? `<div style="display:flex;align-items:center;justify-content:center;gap:14px;height:100%;background:linear-gradient(160deg,#12151c,#0a0b0e);">${crest(c1)}<span style="color:#4b5563;font-weight:800;">v</span>${crest(c2)}</div>`
-    : `<div style="display:flex;align-items:flex-end;height:100%;padding:10px;background:${grad(it.item_id)};"><span class="tname" style="position:static;">${esc(it.label)}</span></div>`;
-  return `<div><div class="tile" style="width:200px;height:118px;">${inner}<span class="lbl" style="background:${sp.c};">${sp.n}</span></div>
-    <div class="cap"><span class="match">${pct(it)}% match</span> · ${reasonLine(it)}</div></div>`;
+function renderHero(h){
+  if(!h){ $('#hero').innerHTML=''; return; }
+  const blurb = (h.reasons&&h.reasons.length) ? h.reasons.join(' · ')
+    : 'Top of your list on taste — we won\'t say how it ends.';
+  $('#hero').innerHTML = `
+    <div class="hero-poster">${h.image?`<img src="${esc(h.image)}" alt="">`:''}<div class="glow"></div></div>
+    <div class="hero-txt">
+      <div class="kick">Top pick for you</div>
+      <h1>${esc(h.label)}</h1>
+      <div class="hero-meta">
+        <span class="score">WATCHABILITY <b>${pct(h)}</b></span>
+        <span class="chip tier">${esc(h.tier||'')}</span>
+        <span class="chip">${esc((TAG[h.sport]||h.sport))} · ${esc(h.date||'')}</span>
+      </div>
+      <p>${esc(blurb)}.</p>
+      <span class="seal">Result sealed · declassifies once you've watched</span>
+    </div>`;
 }
 
-function mediaTile(it){
-  const m = MEDIA[it.sport] || {c:'#6b7280',n:'',w:130,h:180};
-  const bg = grad(it.item_id);
-  const cover = it.image
-    ? `<img class="cover" src="${esc(it.image)}" loading="lazy" onerror="this.remove()">`
-    : `<span class="tname">${esc(it.label)}</span>`;
-  return `<div><div class="tile" style="width:${m.w}px;height:${m.h}px;background:${bg};">${cover}<span class="lbl" style="background:${m.c};">${m.n}</span></div>
-    <div class="cap"><span class="match">${esc(it.tier||'')}</span> · ${esc(it.date||'')}</div></div>`;
+// followed-club label lookup (ESPN abbreviations -> readable), best-effort
+const CLUB = {ARS:'Arsenal',LIV:'Liverpool',MNC:'Man City',RMA:'Real Madrid',MUN:'Man Utd',
+  NEW:'Newcastle',BOU:'Bournemouth',COV:'Coventry',CRY:'Crystal Palace',NFO:'Forest',
+  BRE:'Brentford',TOT:'Tottenham',CHE:'Chelsea',HUL:'Hull',MAN:'Man Utd',IPS:'Ipswich',
+  SUN:'Sunderland',LEE:'Leeds',EVE:'Everton',AVL:'Aston Villa',BHA:'Brighton',FUL:'Fulham',WOL:'Wolves'};
+const nm = ab => CLUB[ab] || ab;
+
+function fxHTML(f){
+  const foll = (f.reasons||[]).find(r=>/you follow/.test(r));
+  const followed = foll ? (foll.match(/follow ([A-Z]{2,4})/)||[])[1] : null;
+  if(f.sport==='soccer' && (f.home_logo||f.away_logo)){
+    const [h,a] = f.label.split(' v ');
+    return `<div class="fx"><div class="bar" style="background:linear-gradient(90deg,var(--coral),transparent 80%)"></div>
+      <div class="body">
+        <div class="top"><span class="lg">Premier League</span><span class="date">${esc(fmtDate(f.date))}</span></div>
+        <div class="vs">
+          <div class="side">${crest(f.home_logo)}<span class="nm">${esc(nm(h))}</span></div>
+          <span class="x">v</span>
+          <div class="side">${crest(f.away_logo)}<span class="nm">${esc(nm(a))}</span></div>
+        </div>
+        <div class="foot"><span class="you">${followed?('◆ '+nm(followed)+' — you follow'):'&nbsp;'}</span>
+          <span class="idx">${pct(f)}<small>/100</small></span></div>
+      </div></div>`;
+  }
+  return `<div class="fx"><div class="bar" style="background:linear-gradient(90deg,#ff8000,transparent 80%)"></div>
+    <div class="body">
+      <div class="top"><span class="lg">Formula 1</span><span class="date">${esc(fmtDate(f.date))}</span></div>
+      <div class="race">${esc(f.label)}</div>
+      <div class="foot"><span class="you">&nbsp;</span><span class="idx">${pct(f)}<small>/100</small></span></div>
+    </div></div>`;
+}
+function fmtDate(d){ try{const t=new Date(d+'T00:00:00');return t.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'});}catch(e){return d;} }
+
+function tileHTML(it){
+  const tag = TAG[it.sport]||it.sport;
+  if(it.image){
+    return `<a class="tile" tabindex="0">
+      <img src="${esc(it.image)}" alt="" loading="lazy" onerror="this.remove()">
+      <span class="tag">${esc(tag)}</span><span class="pill">${pct(it)}</span>
+      <div class="veil"><div class="t">${esc(it.label)}</div>
+        <div class="why"><span class="tier">${esc(it.tier||'')}</span> · ${esc(why(it))}</div></div></a>`;
+  }
+  // sports poster (crests)
+  const [c1,c2] = it.sport==='soccer' ? [it.home_logo,it.away_logo] : [it.away_logo,it.home_logo];
+  return `<a class="tile" tabindex="0">
+    <div class="poster"><div class="crs">${crest(c1)}<span class="x">v</span>${crest(c2)}</div>
+      <div class="lb">${esc(it.label)}</div></div>
+    <span class="tag">${esc(tag)}</span><span class="pill">${pct(it)}</span>
+    <div class="veil"><div class="t">${esc(it.label)}</div>
+      <div class="why"><span class="tier">${esc(it.tier||'')}</span> · ${esc(why(it))}</div></div></a>`;
 }
 
-function shelf(title, sub, items, tiler){
-  if(!items || !items.length) return '';
-  return `<div class="shelf"><h2>${esc(title)} ${sub?`<span class="sub">· ${esc(sub)}</span>`:''}</h2>
-    <div class="row">${items.map(tiler).join('')}</div></div>`;
-}
-
-function billboard(it){
-  if(!it) return '';
-  const sp = SPORT[it.sport]||{c:'#6b7280',n:(it.sport||'').toUpperCase()};
-  const bg = (it.home_logo||it.away_logo) ? 'linear-gradient(120deg,#1b3a5c,#6CABDD 60%,#0a0b0e)' : grad(it.item_id);
-  $('#hero').innerHTML =
-    `<div class="scrim" style="background:linear-gradient(90deg,rgba(10,11,14,.97) 0%,rgba(10,11,14,.7) 45%,rgba(10,11,14,.15) 100%),${bg};"></div>
-     <div class="inner">
-       <span class="eyebrow" style="background:${sp.c};">Coming up · ${sp.n}</span>
-       <h1>${esc(it.label)}</h1>
-       <div class="hmeta"><span class="match">${pct(it)}% match</span><span style="color:#d1d5db;">${esc(it.tier||'')}</span><span style="color:#9aa1ad;">${esc(it.date||'')}</span></div>
-       <p class="hreason">${reasonLine(it)}</p>
-       <div class="btns"><div class="btn btn-p">▶ Remind me</div><div class="btn btn-s">ⓘ Why this?</div></div>
-     </div>`;
+function interleave(groups){
+  const out=[], max=Math.max(...groups.map(g=>g.length));
+  for(let i=0;i<max;i++) groups.forEach(g=>{ if(g[i]) out.push(g[i]); });
+  return out;
 }
 
 async function load(){
-  const j = async f => { try { return await (await fetch('./data/'+f)).json(); } catch(e){ return []; } };
-  const [meta, upcoming, sports, anime, music, book] = await Promise.all(
-    ['meta.json','upcoming.json','sports.json','anime.json','music.json','book.json'].map(j));
+  const j = f => fetch('./data/'+f).then(r=>r.json()).catch(()=>[]);
+  const [meta, upcoming, sports, anime, book, music] = await Promise.all(
+    ['meta.json','upcoming.json','sports.json','anime.json','book.json','music.json'].map(j));
 
-  const topSports = [...(sports||[])].sort((a,b)=>b.score-a.score).slice(0,18).map((x,i)=>({...x,rank:i+1}));
-  billboard((upcoming&&upcoming[0]) || topSports[0]);
+  renderHero((anime||[]).find(x=>x.image) || (music||[]).find(x=>x.image) || (anime||[])[0]);
 
-  let html = '';
-  html += shelf('Coming up', 'ranked by watchability × your taste', (upcoming||[]).slice(0,18), sportTile);
-  html += shelf('Sports · must-watch', '', topSports, sportTile);
-  html += shelf('New anime for you', 'matches your taste', (anime||[]).slice(0,18), mediaTile);
-  html += shelf('New music for you', (meta.media&&meta.media.music&&meta.media.music.ratings? 'from your top artists':''), (music||[]).slice(0,18), mediaTile);
-  html += shelf('From your reading taste', '', (book||[]).slice(0,18), mediaTile);
-  $('#rows').innerHTML = html || '<p style="color:var(--muted);">No data.</p>';
+  const fx = (upcoming||[]).slice(0,8);
+  if(fx.length){ $('#fx-head').style.display=''; $('#fixtures').innerHTML = fx.map(fxHTML).join(''); }
+
+  const topSp = sp => [...(sports||[])].filter(x=>x.sport===sp).sort((a,b)=>b.score-a.score);
+  const groups = {
+    anime:(anime||[]).slice(0,12), book:(book||[]).slice(0,10), music:(music||[]).slice(0,10),
+    soccer:topSp('soccer').slice(0,10), nba:topSp('nba').slice(0,8),
+  };
+  const order=['anime','soccer','music','book','nba'];
+  const ALL = interleave(order.map(k=>groups[k]||[]));
+
+  const verts=[['all','All'],['anime','Anime'],['soccer','Soccer'],['nba','NBA'],['book','Books'],['music','Music']]
+    .filter(([v])=>v==='all'||(groups[v]&&groups[v].length));
+  $('#filters').innerHTML = verts.map(([v,l],i)=>`<button data-v="${v}" aria-pressed="${i===0}">${l}</button>`).join('');
+  const draw = f => $('#wall').innerHTML = (f==='all'?ALL:groups[f]||[]).map(tileHTML).join('') || '<p class="empty">Nothing here yet.</p>';
+  draw('all');
+  $('#filters').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+    document.querySelectorAll('#filters button').forEach(x=>x.setAttribute('aria-pressed',x===b));draw(b.dataset.v);});
+
+  if(meta&&meta.followed) $('#foot').insertAdjacentHTML('afterbegin',
+    `Following: ${meta.followed.map(esc).join(' · ')}<br>`);
 }
 load();
 </script>
