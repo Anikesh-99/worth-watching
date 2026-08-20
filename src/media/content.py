@@ -18,7 +18,9 @@ import numpy as np
 import pandas as pd
 
 from src.core.interfaces import Item, Ranked, Scored, UserProfile
+from src.media.embeddings import build_item_embeddings, project_taste
 from src.media.features import build_vocab, content_matrix, quality_prior
+from src.media.retrieval import EmbeddingRetriever
 
 _TASTE_LO, _TASTE_HI = 0.6, 1.4  # taste multiplier range
 
@@ -63,6 +65,9 @@ class ContentRecommender:
         self.unit = np.vstack([_unit(row) for row in self.matrix]) if len(self.df) else self.matrix
         self.quality = quality_prior(self.df, self.quality_col)
         self._row_of = {iid: i for i, iid in enumerate(self.df["item_id"])}
+        # dense embedding tower + nearest-neighbour retriever (stage-1 candidates)
+        self.embeddings, self._svd = build_item_embeddings(self.matrix)
+        self.retriever = EmbeddingRetriever(self.embeddings)
 
     def _tier(self, score: float) -> str:
         return next(label for thresh, label in self.tiers if score >= thresh)
@@ -144,10 +149,30 @@ class ContentRecommender:
         ordered = sorted(scored, key=lambda s: s.score, reverse=True)
         return [Ranked(rank=i + 1, scored=s) for i, s in enumerate(ordered)]
 
+    def retrieve_candidates(self, user: UserProfile, k: int) -> set[str]:
+        """Stage 1: item_ids of the k nearest catalog items to the taste vector,
+        via the embedding retriever (dense ANN-style recall)."""
+        taste, _ = self._taste_vector(user)
+        q = project_taste(taste, self._svd)
+        rows = self.retriever.query(q, k)
+        return {self.df.iloc[int(r)]["item_id"] for r in rows}
+
+    def nearest(self, item_id: str, k: int = 5) -> list[str]:
+        """Item_ids most similar to a catalog item in the embedding space."""
+        row = self._row_of.get(self._norm_id(item_id))
+        if row is None or not len(self.embeddings):
+            return []
+        rows = self.retriever.query(self.embeddings[row], k + 1)
+        return [self.df.iloc[int(r)]["item_id"] for r in rows if int(r) != row][:k]
+
     def recommend(self, user: UserProfile, top: int = 15,
-                  start: datetime | None = None, end: datetime | None = None) -> list[Ranked]:
+                  start: datetime | None = None, end: datetime | None = None,
+                  retrieve: int | None = None) -> list[Ranked]:
         s = start or datetime(1400, 1, 1)
         e = end or datetime(2100, 1, 1)
         rated = {self._norm_id(k) for k in user.ratings}
         cands = [it for it in self.generate_candidates(s, e) if it.item_id not in rated]
-        return self.rank(self.score(cands, user))[:top]
+        if retrieve:                                   # stage 1: embedding retrieval prunes
+            keep = self.retrieve_candidates(user, retrieve)
+            cands = [it for it in cands if it.item_id in keep]
+        return self.rank(self.score(cands, user))[:top]  # stage 2: exact re-score + rank

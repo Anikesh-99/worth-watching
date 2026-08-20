@@ -191,7 +191,7 @@ python -m venv .venv && ./.venv/bin/pip install -r requirements.txt
 ./.venv/bin/python scripts/recommend_anime.py                  # anime recommendations
 ./.venv/bin/python scripts/recommend_books.py                  # book recommendations
 ./.venv/bin/python scripts/serve.py                            # dashboard -> http://127.0.0.1:8000
-./.venv/bin/python -m pytest -q                                 # 65 tests, network-free + cached
+./.venv/bin/python -m pytest -q                                 # 72 tests, network-free + cached
 ```
 
 **Music (Spotify) vertical.** A fourth `ContentRecommender`: taste = your top
@@ -203,6 +203,27 @@ browse/batch endpoints (search caps at 10), so genres are recovered from
 the local dashboard as a 🎵 Music mode; kept off the public demo since its
 catalog is built from personal taste (the demo ships no personal data).
 
+**Embedding retrieval (two-stage) for media.** The media verticals get an
+explicit **retrieve → rank** split. A dense **embedding tower** (TruncatedSVD /
+LSA over the tag matrix, `src/media/embeddings.py`) compresses each item into a
+latent space where correlated genres share factors; the taste vector projects
+into the *same* space. A **nearest-neighbour retriever** (`src/media/retrieval.py`)
+then does stage-1 candidate generation, with two backends — exact cosine and a
+from-scratch **random-hyperplane LSH** — so the accuracy/speed tradeoff is real,
+not hand-waved. Evaluated in **[`docs/retrieval.md`](docs/retrieval.md)**:
+
+- **Embedding fidelity** — dim-32 embeddings recover the exact taste neighbour
+  set (recall@10 → 1.0 by K≈20-40 across anime/books/music): the compression
+  keeps the signal.
+- **LSH recall** traces the textbook ANN curve — e.g. books **0.3 → 0.5 → 0.9**
+  as hyperplanes go 8 → 16 → 32 (a bigger catalog needs finer buckets).
+
+Honest scale note: at N < 1k exact retrieval is instant and *correct*, so it's
+the default. The value here is the two-tower seam and the proof that embedding
+retrieval preserves quality — the drop-in point for a sharded ANN service at
+10M items. (The current ranker is quality-dominated, so embeddings serve
+taste-based discovery and *similar-items*, not pruning a quality-sorted list.)
+
 All six phases complete, four verticals live.
 
 ## At scale (what I'd build next, and why it isn't here)
@@ -211,11 +232,11 @@ This is a single-user batch system by design; the interesting question is what
 changes when it isn't. Called out explicitly because knowing the gap is the
 point:
 
-- **Retrieval, not full-scan.** Candidate generation here is a date-window scan
-  (fine for ~24 races/season). At catalog scale it becomes the hard part: I'd add
-  a **two-tower / item2vec embedding retriever with an ANN index** (faiss/hnsw)
-  as stage 1, keeping the ranker as stage 2. The media verticals are the natural
-  first target — content vectors already exist.
+- **Retrieval, not full-scan.** Sports candidate generation is still a
+  date-window scan (fine for ~24 races/season). The media verticals already have
+  the **two-stage embedding retriever** (see *Embedding retrieval* above); the
+  scale step is swapping the from-scratch LSH for a production ANN index
+  (faiss/hnsw) behind the same interface, and giving sports the same treatment.
 - **Online/offline consistency.** The one real production hazard I've guarded
   against in miniature: upcoming `stakes` reuses the *exact* formula the history
   uses, so a match doesn't change "importance" the moment it finishes. At scale
@@ -248,8 +269,11 @@ scripts/build_dataset.py   # dispatches on config `vertical`
 scripts/train_excitement.py# trains + evaluates the shared model
 scripts/make_ratings_template.py # human-readable ratings template to fill
 scripts/evaluate.py        # eval every ranker vs your ratings -> docs/evaluation.md
+scripts/evaluate_retrieval.py # media embedding-retrieval eval -> docs/retrieval.md
 scripts/watchlist.py       # end-to-end spoiler-free watch-list (CLI)
 src/media/content.py       # ContentRecommender: shared content-based engine
+src/media/embeddings.py    # dense item embedding tower (TruncatedSVD / LSA)
+src/media/retrieval.py     # nearest-neighbour retriever (exact + from-scratch LSH)
 src/media/anime_ingest.py  # anime: Jikan catalog -> tidy content table
 src/media/recommender.py   # AnimeRecommender (thin subclass)
 src/media/book_ingest.py   # books: Open Library catalog -> tidy content table
@@ -260,5 +284,5 @@ web/index.html             # self-contained 3-mode dashboard (no external assets
 scripts/serve.py           # launch the dashboard
 scripts/recommend_{anime,books}.py # media recs; import_{mal,goodreads}.py import lists
 scripts/build_static.py    # bake scores -> web_static/ for GitHub Pages
-tests/                     # 65 tests across sports + media verticals
+tests/                     # 72 tests across sports + media verticals
 ```

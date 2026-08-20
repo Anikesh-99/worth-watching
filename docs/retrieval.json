@@ -1,0 +1,68 @@
+{
+  "anime": {
+    "n": 75,
+    "emb_dim": 32,
+    "prune_recall@10": {
+      "10": 0.9,
+      "20": 1.0,
+      "40": 1.0
+    },
+    "lsh_recall@10": {
+      "8": 0.8,
+      "16": 0.9,
+      "32": 0.9
+    },
+    "neighbours": {
+      "seed": "Uchuu Kyoudai",
+      "nearest": [
+        "Grand Blue",
+        "Grand Blue Season 2",
+        "Ginga Eiyuu Densetsu"
+      ]
+    }
+  },
+  "book": {
+    "n": 613,
+    "emb_dim": 32,
+    "prune_recall@10": {
+      "10": 0.7,
+      "20": 0.9,
+      "40": 1.0
+    },
+    "lsh_recall@10": {
+      "8": 0.3,
+      "16": 0.5,
+      "32": 0.9
+    },
+    "neighbours": {
+      "seed": "Alice's Adventures in Wonderland",
+      "nearest": [
+        "The Coral Island",
+        "Alice's Adventures in Wonderland / Through the Looking Glass",
+        "Picasso"
+      ]
+    }
+  },
+  "music": {
+    "n": 139,
+    "emb_dim": 32,
+    "prune_recall@10": {
+      "10": 0.9,
+      "20": 1.0,
+      "40": 1.0
+    },
+    "lsh_recall@10": {
+      "8": 0.5,
+      "16": 0.8,
+      "32": 0.8
+    },
+    "neighbours": {
+      "seed": "Vie",
+      "nearest": [
+        "Everything I Thought It Was",
+        "Scarlet 2 CLAUDE",
+        "Man of the Woods"
+      ]
+    }
+  }
+}
