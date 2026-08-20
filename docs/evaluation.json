@@ -1,0 +1,105 @@
+{
+  "n": 98,
+  "counts": {
+    "f1": 24,
+    "nba": 74
+  },
+  "accuracy": [
+    {
+      "ranker": "chronological (naive)",
+      "spearman": 0.177,
+      "ndcg@10 nba": 0.636,
+      "map@10 nba": 0.354,
+      "ndcg@10 f1": 0.812,
+      "map@10 f1": 0.856
+    },
+    {
+      "ranker": "popularity / marquee",
+      "spearman": -0.239,
+      "ndcg@10 nba": 0.442,
+      "map@10 nba": 0.2,
+      "ndcg@10 f1": 0.807,
+      "map@10 f1": 0.895
+    },
+    {
+      "ranker": "competitiveness only",
+      "spearman": 0.649,
+      "ndcg@10 nba": 0.903,
+      "map@10 nba": 0.906,
+      "ndcg@10 f1": 0.891,
+      "map@10 f1": 0.977
+    },
+    {
+      "ranker": "excitement index",
+      "spearman": 0.665,
+      "ndcg@10 nba": 0.899,
+      "map@10 nba": 0.963,
+      "ndcg@10 f1": 0.964,
+      "map@10 f1": 1.0
+    },
+    {
+      "ranker": "personalized (assumed boosts)",
+      "spearman": 0.645,
+      "ndcg@10 nba": 0.896,
+      "map@10 nba": 0.953,
+      "ndcg@10 f1": 0.923,
+      "map@10 f1": 0.963
+    },
+    {
+      "ranker": "personalized (per-sport calibrated)",
+      "spearman": 0.665,
+      "ndcg@10 nba": 0.899,
+      "map@10 nba": 0.963,
+      "ndcg@10 f1": 0.963,
+      "map@10 f1": 1.0
+    },
+    {
+      "ranker": "Ridge on your ratings (OOF)",
+      "spearman": 0.635,
+      "ndcg@10 nba": 0.91,
+      "map@10 nba": 1.0,
+      "ndcg@10 f1": 0.935,
+      "map@10 f1": 0.963
+    },
+    {
+      "ranker": "GBM on your ratings (OOF)",
+      "spearman": 0.631,
+      "ndcg@10 nba": 0.969,
+      "map@10 nba": 1.0,
+      "ndcg@10 f1": 0.93,
+      "map@10 f1": 0.977
+    }
+  ],
+  "tradeoff": [
+    {
+      "lambda": 1.0,
+      "ndcg@10": 0.968,
+      "diversity@10": 0.63
+    },
+    {
+      "lambda": 0.8,
+      "ndcg@10": 0.968,
+      "diversity@10": 0.715
+    },
+    {
+      "lambda": 0.6,
+      "ndcg@10": 0.967,
+      "diversity@10": 0.756
+    },
+    {
+      "lambda": 0.4,
+      "ndcg@10": 0.967,
+      "diversity@10": 0.767
+    }
+  ],
+  "weights_by_sport": {
+    "f1": {
+      "followed_boost": 0.0,
+      "stakes_boost": 0.013
+    },
+    "nba": {
+      "followed_boost": 0.0,
+      "stakes_boost": 0.0
+    }
+  }
+}

@@ -51,7 +51,8 @@ predictor stays in the repo as the documented artifact.
         │                                            │
    FastF1 (F1) · ESPN (NBA)             Jikan (anime) · Open Library (books)
         └──────────────┬─────────────────────────────┘
-             shared: evaluation harness (temporal split · NDCG · MRR · Spearman)
+             shared: evaluation harness (temporal split · NDCG · MAP · Spearman
+                     · MMR diversity re-rank)
                        UserProfile · Item · Scored · FastAPI dashboard
 ```
 
@@ -114,28 +115,48 @@ the followed team, and playoff status — never the result). A placeholder
 `data/my_ratings.csv` is seeded so it runs today; replace it with your own 1-5
 ratings and personalization/eval use them immediately.
 
-**Phase 4 — evaluation against real ratings (done).** Measured every ranker
-against 98 of the author's own 1-5 ratings (24 F1 + 74 NBA). Honest results:
+**Phase 4 — evaluation against real ratings (done).** `scripts/evaluate.py`
+measures every ranker against 98 of the author's own 1-5 ratings (24 F1 + 74
+NBA) and **auto-generates [`docs/evaluation.md`](docs/evaluation.md)** — the
+table below is emitted, never hand-transcribed. Metrics: Spearman (overall),
+NDCG@10 and MAP@10 per sport (gain = your rating).
 
-| ranker | Spearman vs your ratings |
-|---|---|
-| chronological (naive) | 0.18 |
-| competitiveness only | 0.65 |
-| **excitement index** | **0.66** |
-| personalized (assumed boosts) | 0.64 |
-| personalized (calibrated) | 0.66 |
-| Ridge / GBM trained on ratings (OOF) | 0.62 / 0.60 |
+| ranker | Spearman | NDCG@10 nba | MAP@10 nba |
+|---|---|---|---|
+| chronological (naive) | 0.18 | 0.64 | 0.35 |
+| popularity / marquee | **−0.24** | 0.44 | 0.20 |
+| competitiveness only | 0.65 | 0.90 | 0.91 |
+| **excitement index** | **0.67** | 0.90 | 0.96 |
+| personalized (assumed boosts) | 0.65 | 0.90 | 0.95 |
+| personalized (per-sport calibrated) | 0.67 | 0.90 | 0.96 |
+| Ridge / GBM on your ratings (OOF) | 0.64 / 0.63 | 0.91 / 0.97 | 1.0 / 1.0 |
 
-Two findings, both kept honestly:
+Three findings, all kept honestly:
+- **Baselines are genuinely beaten, not strawmen.** Popularity/marquee ordering
+  *anti*-correlates with enjoyment (Spearman −0.24) — the author doesn't rate on
+  star teams — so the index's 0.67 clears a real bar, not just chronological.
 - **Core hypothesis validated:** objective box-score excitement predicts real
-  enjoyment (Spearman 0.66); a small model trained on the ratings does *not*
-  beat the transparent index at n=98.
-- **Personalization hypothesis refuted for this user:** followed teams averaged
-  3.0 vs 3.4, and stakes correlated -0.22 with ratings — this author rates on
-  intrinsic excitement, not team loyalty. So the assumed "+35% for your team"
-  boost *hurt* (0.66 -> 0.64). The fix: `personalize.calibrate()` learns the
-  boosts from ratings and clamps refuted signals to zero, recovering 0.66.
-  Personalization is now evidence-based, not assumed.
+  enjoyment (0.67); a small model trained on the ratings does *not* beat the
+  transparent index at n=98 (so we ship the index — the honest call).
+- **Personalization refuted for this user, then fixed with evidence:** followed
+  teams averaged 3.0 vs 3.4 and stakes correlated −0.22 with ratings, so the
+  assumed "+35% for your team" boost *hurt* (0.67 → 0.65). `calibrate_per_sport()`
+  learns the boosts *per sport* and clamps refuted signals to zero — recovering
+  0.67. Because it's per-sport, soccer (which the author hasn't rated) keeps the
+  neutral prior and still boosts followed clubs, instead of inheriting the
+  NBA/F1 "team loyalty doesn't predict enjoyment" verdict.
+
+**Beyond accuracy.** A watch-list that's five games of one team is accurate and
+useless, so ranking is not the whole objective. Stage 3 offers an **MMR
+re-rank** (`src/core/rerank.py`) that trades relevance for intra-list diversity
+via one knob λ. The tradeoff is near-free here — lowering λ lifts diversity
+**0.63 → 0.77 (+22%)** for a **0.1% NDCG** cost:
+
+| λ | NDCG@10 | diversity@10 |
+|---|---|---|
+| 1.0 (pure relevance) | 0.968 | 0.63 |
+| 0.6 | 0.967 | 0.76 |
+| 0.4 | 0.967 | 0.77 |
 
 **Phase 5 — FastAPI backend + web dashboard (done).** A self-contained page
 (no external assets) served by FastAPI shows the spoiler-free watch-list for any
@@ -170,7 +191,7 @@ python -m venv .venv && ./.venv/bin/pip install -r requirements.txt
 ./.venv/bin/python scripts/recommend_anime.py                  # anime recommendations
 ./.venv/bin/python scripts/recommend_books.py                  # book recommendations
 ./.venv/bin/python scripts/serve.py                            # dashboard -> http://127.0.0.1:8000
-./.venv/bin/python -m pytest -q                                 # 36 tests, network-free + cached
+./.venv/bin/python -m pytest -q                                 # 65 tests, network-free + cached
 ```
 
 **Music (Spotify) vertical.** A fourth `ContentRecommender`: taste = your top
@@ -184,13 +205,39 @@ catalog is built from personal taste (the demo ships no personal data).
 
 All six phases complete, four verticals live.
 
+## At scale (what I'd build next, and why it isn't here)
+
+This is a single-user batch system by design; the interesting question is what
+changes when it isn't. Called out explicitly because knowing the gap is the
+point:
+
+- **Retrieval, not full-scan.** Candidate generation here is a date-window scan
+  (fine for ~24 races/season). At catalog scale it becomes the hard part: I'd add
+  a **two-tower / item2vec embedding retriever with an ANN index** (faiss/hnsw)
+  as stage 1, keeping the ranker as stage 2. The media verticals are the natural
+  first target — content vectors already exist.
+- **Online/offline consistency.** The one real production hazard I've guarded
+  against in miniature: upcoming `stakes` reuses the *exact* formula the history
+  uses, so a match doesn't change "importance" the moment it finishes. At scale
+  that discipline needs a **feature store** with a shared transform, not
+  convention.
+- **Exploration.** The owner-rating loop is pure exploit. A **contextual bandit
+  (Thompson sampling)** would surface uncertain items to learn taste faster —
+  the natural next experiment given the feedback loop already exists.
+- **Monitoring.** With a daily cron and live calibration, I'd track
+  **calibration drift and metric-over-time**, not just a one-shot eval.
+
+The judgment call the whole repo makes: prefer the transparent index the learned
+model can't beat at this N, and add complexity only when the evaluation earns it.
+
 ## Layout
 
 ```
 src/core/interfaces.py     # Recommender protocol shared by every vertical
 src/core/features.py       # per-sport -> unified excitement feature vocabulary
 src/core/excitement.py     # transparent index + shared LightGBM LambdaRank model
-src/core/evaluation.py     # temporal split + NDCG / MRR / Spearman
+src/core/evaluation.py     # temporal split + NDCG / MAP / MRR / Spearman / diversity
+src/core/rerank.py         # MMR diversity re-rank (stage-3 relevance↔diversity knob)
 src/core/profile.py        # load followed entities + ratings -> UserProfile
 src/sports/ingest.py       # F1: FastF1 -> tidy per-race dataframe
 src/sports/nba_ingest.py   # NBA: ESPN scoreboard -> tidy per-game dataframe
@@ -200,7 +247,7 @@ configs/{f1,nba}.yaml      # sport-specific config (seasons, followed entities)
 scripts/build_dataset.py   # dispatches on config `vertical`
 scripts/train_excitement.py# trains + evaluates the shared model
 scripts/make_ratings_template.py # human-readable ratings template to fill
-scripts/evaluate.py        # eval every ranker against your real ratings
+scripts/evaluate.py        # eval every ranker vs your ratings -> docs/evaluation.md
 scripts/watchlist.py       # end-to-end spoiler-free watch-list (CLI)
 src/media/content.py       # ContentRecommender: shared content-based engine
 src/media/anime_ingest.py  # anime: Jikan catalog -> tidy content table
@@ -213,5 +260,5 @@ web/index.html             # self-contained 3-mode dashboard (no external assets
 scripts/serve.py           # launch the dashboard
 scripts/recommend_{anime,books}.py # media recs; import_{mal,goodreads}.py import lists
 scripts/build_static.py    # bake scores -> web_static/ for GitHub Pages
-tests/                     # 36 tests across sports + media verticals
+tests/                     # 65 tests across sports + media verticals
 ```
