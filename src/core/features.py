@@ -36,6 +36,45 @@ def _sat(x: pd.Series, cap: float) -> pd.Series:
     return (x.astype(float) / cap).clip(0.0, 1.0)
 
 
+def _running_upset(df: pd.DataFrame, *, win_pts: float, draw_pts: float,
+                   scale: float, min_games: int, group_cols: list[str]) -> pd.Series:
+    """Upset magnitude in [0, 1] from a lookahead-free forward pass.
+
+    Each side's *pre-match* strength is its running points-per-game so far this
+    season (per league, for soccer). For a decided match where both sides have
+    played >= min_games, upset = min(1, strength_gap / scale) IF the weaker side
+    won, else 0. The feature is read BEFORE the result updates the tally, so it
+    never peeks at its own outcome — the same temporal discipline as pregame.py.
+    Draws are not upsets. Returned aligned to df's index.
+    """
+    s = df.sort_values("date", kind="stable")
+    home, away = s["home"].to_numpy(), s["away"].to_numpy()
+    hs, as_ = s["home_score"].to_numpy(), s["away_score"].to_numpy()
+    grp = list(zip(*[s[c].to_numpy() for c in group_cols])) if group_cols else [()] * len(s)
+
+    tally: dict[tuple, list[float]] = {}          # (group..., team) -> [points, games]
+    out: list[float] = []
+    for i in range(len(s)):
+        hk, ak = (*grp[i], home[i]), (*grp[i], away[i])
+        hp = tally.get(hk, [0.0, 0])
+        ap = tally.get(ak, [0.0, 0])
+        u = 0.0
+        if hp[1] >= min_games and ap[1] >= min_games and hs[i] != as_[i]:
+            h_str, a_str = hp[0] / hp[1], ap[0] / ap[1]
+            win_str, los_str = (h_str, a_str) if hs[i] > as_[i] else (a_str, h_str)
+            if win_str < los_str:                 # the weaker side won
+                u = min(1.0, (los_str - win_str) / scale)
+        out.append(u)
+        # update AFTER recording the feature (keeps the pass lookahead-free)
+        if hs[i] > as_[i]:
+            tally[hk], tally[ak] = [hp[0] + win_pts, hp[1] + 1], [ap[0], ap[1] + 1]
+        elif as_[i] > hs[i]:
+            tally[hk], tally[ak] = [hp[0], hp[1] + 1], [ap[0] + win_pts, ap[1] + 1]
+        else:
+            tally[hk], tally[ak] = [hp[0] + draw_pts, hp[1] + 1], [ap[0] + draw_pts, ap[1] + 1]
+    return pd.Series(out, index=s.index).reindex(df.index)
+
+
 def normalize_f1(df: pd.DataFrame) -> pd.DataFrame:
     """Map the F1 per-race table onto the unified feature vocabulary."""
     out = pd.DataFrame()
@@ -66,7 +105,9 @@ def normalize_nba(df: pd.DataFrame) -> pd.DataFrame:
     out["volatility"] = _sat(df["lead_changes"], cap=3.0)                             # saturates (quarter-boundary proxy)
     out["comeback"] = df["winner_came_from_behind"].astype(float).clip(0.0, 1.0)      # trailed after Q3, won
     out["chaos"] = _sat(df["overtime_periods"], cap=1.0)                              # any overtime = max drama
-    out["upset"] = 0.0                                                                 # needs pre-game odds/standings (future)
+    # upset: the pre-game weaker side (by running win rate) won — see _running_upset
+    out["upset"] = _running_upset(df, win_pts=1.0, draw_pts=0.0, scale=0.4,
+                                  min_games=5, group_cols=["season"])
     out["stakes"] = df["is_playoff"].astype(float).clip(0.0, 1.0)
 
     out["item_id"] = df["item_id"]
@@ -88,7 +129,9 @@ def normalize_soccer(df: pd.DataFrame) -> pd.DataFrame:
     goalfest = (pd.to_numeric(df["total_goals"], errors="coerce") >= 4).astype(float)
     out["chaos"] = (0.5 * _sat(df["red_cards"], 2.0) + 0.4 * goalfest
                     + 0.3 * df["late_drama"].astype(float)).clip(0.0, 1.0)
-    out["upset"] = 0.0                                                       # needs table/odds (future)
+    # upset: the pre-game weaker club (by running points-per-game) won
+    out["upset"] = _running_upset(df, win_pts=3.0, draw_pts=1.0, scale=1.5,
+                                  min_games=3, group_cols=["league", "season"])
     out["stakes"] = df["is_knockout"].astype(float).clip(0.0, 1.0) * 0.7 + 0.3
 
     out["item_id"] = df["item_id"]

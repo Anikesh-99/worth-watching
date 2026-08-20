@@ -67,15 +67,25 @@ def _team_pedigree(hist_soccer: pd.DataFrame, excitement: dict[str, float]) -> d
 
 
 def soccer_fixtures(matches: list[dict], hist_soccer: pd.DataFrame,
-                    excitement: dict[str, float]) -> pd.DataFrame:
-    """`matches`: dicts with home, away, date, is_knockout (from the schedule fetch)."""
+                    excitement: dict[str, float],
+                    standings: dict[str, dict] | None = None) -> pd.DataFrame:
+    """`matches`: dicts with home, away, date, league, is_knockout (from the fetch).
+
+    `standings` maps league -> {team: {strength, games}} (see standings.py). When
+    supplied, competitiveness is the clubs' current table closeness; otherwise it
+    stays neutral 0.5.
+    """
+    from src.sports.standings import competitiveness
+
     ped = _team_pedigree(hist_soccer, excitement)
+    standings = standings or {}
     rows = []
     for m in matches:
         home, away = m["home"], m["away"]
         # average the two clubs' historical pedigree; unseen clubs get a neutral
         # 0.5 (same default as F1's per-circuit pedigree), not skipped.
         pedigree = float((ped.get(home, 0.5) + ped.get(away, 0.5)) / 2)
+        table = standings.get(m.get("league", ""), {})
         rows.append({
             "item_id": m["item_id"],
             "sport": "soccer",
@@ -85,7 +95,7 @@ def soccer_fixtures(matches: list[dict], hist_soccer: pd.DataFrame,
             # same stakes formula as normalize_soccer -> upcoming & history agree
             "stakes": float(m.get("is_knockout", 0)) * 0.7 + 0.3,
             "pedigree": pedigree,
-            "competitiveness": 0.5,                           # needs league table (future)
+            "competitiveness": competitiveness(home, away, table, "soccer"),
             "form": 0.5,
         })
     return pd.DataFrame(rows, columns=FIXTURE_COLUMNS)
@@ -191,9 +201,13 @@ def collect_upcoming_fixtures(f1_events: pd.DataFrame | None = None,
         try:
             matches = fetch_soccer_schedule()
             if matches:
+                from src.sports.standings import fetch_standings
                 su = normalize_soccer(soccer_events)
                 ex = dict(zip(su["item_id"], ExcitementIndex().score(su)))
-                parts.append(soccer_fixtures(matches, soccer_events, ex))
+                # current table per league (for competitiveness); best-effort
+                leagues = {m.get("league", "") for m in matches if m.get("league")}
+                standings = {lg: fetch_standings("soccer", lg) for lg in leagues}
+                parts.append(soccer_fixtures(matches, soccer_events, ex, standings))
                 for m in matches:
                     if m.get("home_logo") or m.get("away_logo"):
                         logos[m["item_id"]] = {"home_logo": m.get("home_logo", ""),
