@@ -5,7 +5,7 @@ from __future__ import annotations
 import pandas as pd
 
 from src.core.interfaces import Ranked, UserProfile
-from src.sports.fixtures import f1_fixtures
+from src.sports.fixtures import f1_fixtures, soccer_fixtures
 from src.sports.upcoming import UpcomingRecommender
 from src.sports.watchability import WATCH_FEATURES, WatchabilityIndex
 
@@ -60,3 +60,27 @@ def test_f1_fixtures_features() -> None:
     assert set(WATCH_FEATURES).issubset(fx.columns)
     assert abs(row["pedigree"] - 0.7) < 1e-9
     assert abs(row["stakes"] - 12 / 24) < 1e-9
+
+
+def test_soccer_fixtures_features() -> None:
+    # ARS appears in two prior matches (ex 0.8, 0.4 -> club mean 0.6);
+    # LIV appears once (0.2). A future ARS v LIV pedigree = mean(0.6, 0.2) = 0.4.
+    hist = pd.DataFrame([
+        dict(item_id="s1", home="ARS", away="CHE"),
+        dict(item_id="s2", home="TOT", away="ARS"),
+        dict(item_id="s3", home="LIV", away="EVE"),
+    ])
+    ex = {"s1": 0.8, "s2": 0.4, "s3": 0.2}
+    matches = [
+        dict(item_id="soccer-1-up", home="ARS", away="LIV", date="2026-08-23T14:00Z", is_knockout=0),
+        dict(item_id="soccer-2-up", home="RMA", away="LIV", date="2026-03-05T20:00Z", is_knockout=1),
+    ]
+    fx = soccer_fixtures(matches, hist, ex).set_index("item_id")
+    assert set(WATCH_FEATURES).issubset(fx.columns)
+    assert fx.loc["soccer-1-up", "label"] == "ARS v LIV"          # home first
+    assert fx.loc["soccer-1-up", "entities"] == ["LIV", "ARS"]    # both clubs, for personalization
+    assert abs(fx.loc["soccer-1-up", "pedigree"] - 0.4) < 1e-9    # mean(ARS=0.6, LIV=0.2)
+    assert abs(fx.loc["soccer-1-up", "stakes"] - 0.3) < 1e-9      # league match
+    assert abs(fx.loc["soccer-2-up", "stakes"] - 1.0) < 1e-9      # knockout: 0.7 + 0.3
+    # RMA is unseen in history -> neutral 0.5, averaged with LIV(0.2) = 0.35
+    assert abs(fx.loc["soccer-2-up", "pedigree"] - 0.35) < 1e-9

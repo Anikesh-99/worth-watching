@@ -24,14 +24,13 @@ import pandas as pd
 import requests
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from src.core.excitement import ExcitementIndex  # noqa: E402
-from src.core.features import normalize_f1, unify  # noqa: E402
+from src.core.features import unify  # noqa: E402
 from src.core.profile import load_user_profile  # noqa: E402
 from src.media.book_recommender import BookRecommender  # noqa: E402
 from src.media.content import augment_catalog  # noqa: E402
 from src.media.music_recommender import MusicRecommender  # noqa: E402
 from src.media.recommender import AnimeRecommender  # noqa: E402
-from src.sports.fixtures import f1_fixtures, fetch_f1_schedule  # noqa: E402
+from src.sports.fixtures import collect_upcoming_fixtures  # noqa: E402
 from src.sports.personalize import DEFAULT_WEIGHTS  # noqa: E402
 from src.sports.recommender import SportRecommender  # noqa: E402
 from src.sports.upcoming import UpcomingRecommender  # noqa: E402
@@ -202,17 +201,14 @@ def _load_csv(path: str) -> pd.DataFrame | None:
 
 
 def _upcoming(user) -> list[dict]:
-    """Rank live upcoming fixtures (F1 now; others when their seasons are live)."""
+    """Rank live upcoming fixtures across sports into one chronological list."""
     try:
-        f1 = _load("data/f1_events.csv")
-        races = fetch_f1_schedule()
-        if f1 is None or not races:
+        fixtures, logos = collect_upcoming_fixtures(
+            _load("data/f1_events.csv"), _load("data/soccer_events.csv"))
+        if fixtures.empty:
             return []
-        u = normalize_f1(f1)
-        excitement = dict(zip(u["item_id"], ExcitementIndex().score(u)))
-        fixtures = f1_fixtures(races, f1, excitement)
-        ranked = UpcomingRecommender(fixtures).recommend(user, top=20)
-        return [_scored_dict(r.scored, r.rank) for r in ranked]
+        ranked = UpcomingRecommender(fixtures).recommend(user, top=25)
+        return [_scored_dict(r.scored, r.rank, logos) for r in ranked]
     except Exception as exc:  # never let a live fetch break the build
         print(f"  upcoming skipped: {exc}")
         return []

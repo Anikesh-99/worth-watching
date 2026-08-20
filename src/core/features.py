@@ -93,7 +93,7 @@ def normalize_soccer(df: pd.DataFrame) -> pd.DataFrame:
 
     out["item_id"] = df["item_id"]
     out["sport"] = "soccer"
-    out["label"] = df["away"].astype(str) + " v " + df["home"].astype(str)
+    out["label"] = df["home"].astype(str) + " v " + df["away"].astype(str)   # football: home first
     out["date"] = pd.to_datetime(df["date"], utc=True).dt.tz_localize(None)
     out["season"] = df["season"]
     out["entities"] = [[a, h] for a, h in zip(df["away"].astype(str), df["home"].astype(str))]

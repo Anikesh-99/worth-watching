@@ -81,8 +81,12 @@ function reasonLine(it){ return it.reasons && it.reasons.length ? esc(it.reasons
 function sportTile(it){
   const sp = SPORT[it.sport] || {c:'#6b7280', n:(it.sport||'').toUpperCase()};
   const crest = u => u ? `<img class="crest" src="${esc(u)}" onerror="this.remove()">` : '';
+  // crest order follows each sport's label convention: soccer is home-first
+  // ("ARS v COV"), NBA is away-first ("DEN @ OKC").
+  const [c1, c2] = it.sport === 'soccer'
+    ? [it.home_logo, it.away_logo] : [it.away_logo, it.home_logo];
   const inner = (it.home_logo||it.away_logo)
-    ? `<div style="display:flex;align-items:center;justify-content:center;gap:14px;height:100%;background:linear-gradient(160deg,#12151c,#0a0b0e);">${crest(it.away_logo)}<span style="color:#4b5563;font-weight:800;">v</span>${crest(it.home_logo)}</div>`
+    ? `<div style="display:flex;align-items:center;justify-content:center;gap:14px;height:100%;background:linear-gradient(160deg,#12151c,#0a0b0e);">${crest(c1)}<span style="color:#4b5563;font-weight:800;">v</span>${crest(c2)}</div>`
     : `<div style="display:flex;align-items:flex-end;height:100%;padding:10px;background:${grad(it.item_id)};"><span class="tname" style="position:static;">${esc(it.label)}</span></div>`;
   return `<div><div class="tile" style="width:200px;height:118px;">${inner}<span class="lbl" style="background:${sp.c};">${sp.n}</span></div>
     <div class="cap"><span class="match">${pct(it)}% match</span> · ${reasonLine(it)}</div></div>`;

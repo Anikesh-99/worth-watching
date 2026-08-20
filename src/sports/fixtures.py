@@ -50,6 +50,92 @@ def f1_fixtures(races: list[dict], hist_f1: pd.DataFrame, excitement: dict[str, 
     return pd.DataFrame(rows, columns=FIXTURE_COLUMNS)
 
 
+def _team_pedigree(hist_soccer: pd.DataFrame, excitement: dict[str, float]) -> dict[str, float]:
+    """Mean historical excitement per club, as the soccer pedigree signal.
+
+    Each match contributes its excitement to BOTH clubs, then we average per
+    club. A future fixture's pedigree is the mean of its two clubs' values —
+    trivially lookahead-free (it's all prior matches).
+    """
+    df = hist_soccer.copy()
+    df["ex"] = df["item_id"].map(excitement)
+    long = pd.concat([
+        df[["home", "ex"]].rename(columns={"home": "team"}),
+        df[["away", "ex"]].rename(columns={"away": "team"}),
+    ], ignore_index=True)
+    return long.groupby("team")["ex"].mean().to_dict()
+
+
+def soccer_fixtures(matches: list[dict], hist_soccer: pd.DataFrame,
+                    excitement: dict[str, float]) -> pd.DataFrame:
+    """`matches`: dicts with home, away, date, is_knockout (from the schedule fetch)."""
+    ped = _team_pedigree(hist_soccer, excitement)
+    rows = []
+    for m in matches:
+        home, away = m["home"], m["away"]
+        # average the two clubs' historical pedigree; unseen clubs get a neutral
+        # 0.5 (same default as F1's per-circuit pedigree), not skipped.
+        pedigree = float((ped.get(home, 0.5) + ped.get(away, 0.5)) / 2)
+        rows.append({
+            "item_id": m["item_id"],
+            "sport": "soccer",
+            "label": f"{home} v {away}",                      # football: home first (matches normalize_soccer)
+            "date": pd.to_datetime(m["date"], utc=True).tz_localize(None),
+            "entities": [away, home],                         # followed-club personalization
+            # same stakes formula as normalize_soccer -> upcoming & history agree
+            "stakes": float(m.get("is_knockout", 0)) * 0.7 + 0.3,
+            "pedigree": pedigree,
+            "competitiveness": 0.5,                           # needs league table (future)
+            "form": 0.5,
+        })
+    return pd.DataFrame(rows, columns=FIXTURE_COLUMNS)
+
+
+def fetch_soccer_schedule(after: datetime | None = None, days_ahead: int = 10,
+                          leagues: tuple[str, ...] = ("eng.1", "uefa.champions")) -> list[dict]:
+    """Upcoming PL + CL fixtures over the next `days_ahead` days from ESPN (best-effort).
+
+    Keeps only not-yet-played matches (`state == "pre"`); returns club abbreviations,
+    crest logos, kickoff datetime, and a knockout-stage flag.
+    """
+    from datetime import timedelta
+
+    after = after or datetime.now()
+    sess = requests.Session()
+    sess.headers.update({"User-Agent": "Mozilla/5.0"})
+    sb = "https://site.api.espn.com/apis/site/v2/sports/soccer/{league}/scoreboard"
+    seen: dict[str, dict] = {}
+    for league in leagues:
+        for offset in range(days_ahead + 1):
+            day = (after + timedelta(days=offset)).date()
+            try:
+                r = sess.get(sb.format(league=league),
+                             params={"dates": day.strftime("%Y%m%d")}, timeout=15)
+                r.raise_for_status()
+                events = r.json().get("events", []) or []
+            except Exception as exc:
+                logging.debug("soccer schedule %s %s: %s", league, day, exc)
+                continue
+            for ev in events:
+                comp = (ev.get("competitions") or [{}])[0]
+                if comp.get("status", {}).get("type", {}).get("state") != "pre":
+                    continue
+                teams = {c.get("homeAway"): c for c in comp.get("competitors", [])}
+                home, away = teams.get("home"), teams.get("away")
+                if not home or not away:
+                    continue
+                item_id = f"soccer-{ev.get('id', '')}-up"
+                seen[item_id] = {
+                    "item_id": item_id, "league": league, "date": ev.get("date"),
+                    "home": home["team"].get("abbreviation", ""),
+                    "away": away["team"].get("abbreviation", ""),
+                    "home_logo": home["team"].get("logo", ""),
+                    "away_logo": away["team"].get("logo", ""),
+                    "is_knockout": int(league == "uefa.champions" and day.month in (2, 3, 4, 5, 6)),
+                }
+    return list(seen.values())
+
+
 def fetch_f1_schedule(after: datetime | None = None) -> list[dict]:
     """Upcoming races of the current F1 season from Jolpica (best-effort)."""
     after = after or datetime.now()
@@ -71,3 +157,50 @@ def fetch_f1_schedule(after: datetime | None = None) -> list[dict]:
                         "country": rc["Circuit"]["Location"]["country"],
                         "date": d, "season_len": n})
     return out
+
+
+def collect_upcoming_fixtures(f1_events: pd.DataFrame | None = None,
+                              soccer_events: pd.DataFrame | None = None
+                              ) -> tuple[pd.DataFrame, dict[str, dict]]:
+    """Fetch live schedules and build ONE combined fixtures table across sports.
+
+    The single source of truth for "Coming up": F1 races (Jolpica) + PL/CL
+    matches this week (ESPN), scored on the same WatchabilityIndex. Each sport
+    is best-effort — a failed fetch or missing history drops that sport, never
+    the whole list. Returns (fixtures, logos) where logos maps item_id -> crest
+    URLs for the soccer tiles. Imports are local to keep this module's top clean
+    of core deps.
+    """
+    from src.core.excitement import ExcitementIndex
+    from src.core.features import normalize_f1, normalize_soccer
+
+    parts: list[pd.DataFrame] = []
+    logos: dict[str, dict] = {}
+
+    if f1_events is not None and len(f1_events):
+        try:
+            races = fetch_f1_schedule()
+            if races:
+                fu = normalize_f1(f1_events)
+                ex = dict(zip(fu["item_id"], ExcitementIndex().score(fu)))
+                parts.append(f1_fixtures(races, f1_events, ex))
+        except Exception as exc:
+            logging.warning("upcoming F1 skipped: %s", exc)
+
+    if soccer_events is not None and len(soccer_events):
+        try:
+            matches = fetch_soccer_schedule()
+            if matches:
+                su = normalize_soccer(soccer_events)
+                ex = dict(zip(su["item_id"], ExcitementIndex().score(su)))
+                parts.append(soccer_fixtures(matches, soccer_events, ex))
+                for m in matches:
+                    if m.get("home_logo") or m.get("away_logo"):
+                        logos[m["item_id"]] = {"home_logo": m.get("home_logo", ""),
+                                               "away_logo": m.get("away_logo", "")}
+        except Exception as exc:
+            logging.warning("upcoming soccer skipped: %s", exc)
+
+    fixtures = (pd.concat(parts, ignore_index=True) if parts
+                else pd.DataFrame(columns=FIXTURE_COLUMNS))
+    return fixtures, logos
