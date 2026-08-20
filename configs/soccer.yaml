@@ -9,7 +9,7 @@ leagues:
   - eng.1            # Premier League
   - uefa.champions   # Champions League
 
-seasons: [2023, 2024]   # labelled by end year (2024 == 2023-24)
+seasons: [2024, 2025, 2026]   # labelled by end year (2026 == 2025-26, the latest complete season)
 
 # Clubs you follow (ESPN abbreviations), for spoiler-free personalization.
 followed_entities:
