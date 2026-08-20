@@ -7,12 +7,10 @@ Reasons are inherently spoiler-free — the event hasn't happened.
 
 from __future__ import annotations
 
-from datetime import datetime
-
 import pandas as pd
 
 from src.core.interfaces import Item, Ranked, Scored, UserProfile
-from src.sports.personalize import DEFAULT_WEIGHTS, TasteWeights, personalize
+from src.sports.personalize import DEFAULT_WEIGHTS, SportTaste, TasteWeights, personalize
 from src.sports.watchability import WATCH_FEATURES, WatchabilityIndex
 from src.sports.watchability import reasons as watch_reasons
 
@@ -26,9 +24,11 @@ def _tier(score: float) -> str:
 class UpcomingRecommender:
     vertical = "upcoming"
 
-    def __init__(self, fixtures: pd.DataFrame, weights: TasteWeights = DEFAULT_WEIGHTS) -> None:
+    def __init__(self, fixtures: pd.DataFrame,
+                 weights: TasteWeights | SportTaste = DEFAULT_WEIGHTS) -> None:
         self.fixtures = fixtures.reset_index(drop=True)
-        self.weights = weights
+        # accept a single TasteWeights (uniform) or a per-sport SportTaste
+        self.taste = weights if isinstance(weights, SportTaste) else SportTaste(default=weights)
 
     def recommend(self, user: UserProfile, top: int = 15) -> list[Ranked]:
         if self.fixtures.empty:
@@ -43,7 +43,7 @@ class UpcomingRecommender:
                 meta={"label": row["label"], "entities": list(row.get("entities") or []),
                       "sport": row["sport"]},
             )
-            mult, preasons = personalize(item, user, self.weights)
+            mult, preasons = personalize(item, user, self.taste.for_sport(item.vertical))
             score = float(w) * mult
             rs = [f"{_tier(score)} · {row['label']} ({row['sport'].upper()})"]
             # watchability already surfaces stakes; from personalization keep only

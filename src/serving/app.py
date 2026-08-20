@@ -54,9 +54,9 @@ def rate(item_id: str = Body(..., embed=True), rating: int = Body(..., embed=Tru
     total = append_sports_rating(item_id, rating)
     svc = _service()
     svc.recalibrate()
-    w = svc.weights
+    m = svc.meta()
     return {"ok": True, "ratings": total,
-            "weights": {"followed_boost": w.followed_boost, "stakes_boost": w.stakes_boost}}
+            "weights": m["weights"], "weights_by_sport": m["weights_by_sport"]}
 
 
 @app.get("/api/media")

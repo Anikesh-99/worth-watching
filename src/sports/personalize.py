@@ -15,13 +15,14 @@ used before any ratings exist.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import pandas as pd
 
 from src.core.interfaces import Item, UserProfile
 
 STAKES_THRESHOLD = 0.8  # only "late-season / playoff" events earn a stakes reason
+MIN_SPORT_RATINGS = 8   # below this, a sport falls back to the prior (too few to fit)
 
 
 @dataclass(frozen=True)
@@ -83,4 +84,38 @@ def calibrate(rated: pd.DataFrame, user: UserProfile) -> TasteWeights:
     corr = df["stakes"].corr(df["rating"], method="spearman")
     stakes = 0.0 if pd.isna(corr) else max(0.0, min(TasteWeights.CAP, 0.5 * corr))
 
-    return TasteWeights(followed_boost=round(followed, 3), stakes_boost=round(stakes, 3))
+    # cast to plain float so weights stay JSON-serializable (corr/mean give np.float64)
+    return TasteWeights(followed_boost=round(float(followed), 3),
+                        stakes_boost=round(float(stakes), 3))
+
+
+@dataclass(frozen=True)
+class SportTaste:
+    """Per-sport taste weights with a fallback for sports lacking enough ratings.
+
+    A single learned knob across all sports is the wrong prior when a user
+    watches, say, soccer for their clubs but NBA for the spectacle. This lets
+    each sport carry its own weights; sports below MIN_SPORT_RATINGS fall back to
+    `default` (the neutral prior) rather than borrowing another sport's verdict.
+    """
+
+    per_sport: dict[str, TasteWeights] = field(default_factory=dict)
+    default: TasteWeights = DEFAULT_WEIGHTS
+
+    def for_sport(self, sport: str) -> TasteWeights:
+        return self.per_sport.get(sport, self.default)
+
+
+def calibrate_per_sport(rated: pd.DataFrame, user: UserProfile) -> SportTaste:
+    """Calibrate each sport on its OWN ratings; sparse sports keep the prior.
+
+    `rated` must additionally carry a `sport` column. A sport with fewer than
+    MIN_SPORT_RATINGS rated events is left to the default prior — we don't fit a
+    followed/stakes effect from a handful of points (it would be noise), and we
+    don't inherit another sport's (see the module docstring).
+    """
+    per: dict[str, TasteWeights] = {}
+    for sport, grp in rated.groupby("sport"):
+        if len(grp) >= MIN_SPORT_RATINGS:
+            per[str(sport)] = calibrate(grp, user)
+    return SportTaste(per_sport=per, default=DEFAULT_WEIGHTS)

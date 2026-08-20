@@ -6,9 +6,11 @@ from datetime import datetime
 
 import pandas as pd
 
-from src.core.features import normalize_f1, normalize_nba, unify
+from src.core.features import unify
 from src.core.interfaces import Item, UserProfile
-from src.sports.personalize import calibrate, personalize
+from src.sports.personalize import (
+    DEFAULT_WEIGHTS, SportTaste, TasteWeights, calibrate, calibrate_per_sport, personalize,
+)
 from src.sports.recommender import SportRecommender
 
 # outcome words a spoiler-free reason must never contain
@@ -88,6 +90,43 @@ def test_calibrate_rewards_supported_signal() -> None:
     })
     w = calibrate(df, UserProfile(followed_entities={"BOS"}))
     assert w.followed_boost > 0.0
+
+
+def test_sport_taste_falls_back_to_default() -> None:
+    taste = SportTaste(per_sport={"nba": TasteWeights(followed_boost=0.1, stakes_boost=0.0)})
+    assert taste.for_sport("nba").followed_boost == 0.1
+    assert taste.for_sport("soccer") is DEFAULT_WEIGHTS   # unseen sport -> prior
+
+
+def test_calibrate_per_sport_independent_and_sparse_fallback() -> None:
+    # NBA has enough ratings and REFUTES the followed boost; soccer has only 2
+    # ratings so it must keep the neutral prior rather than fit noise.
+    rows = []
+    for i in range(10):                                   # 10 NBA: followed = worse
+        followed = i % 2 == 0
+        rows.append(dict(sport="nba", entities=(["BOS", "X"] if followed else ["A", "B"]),
+                         stakes=0.0, rating=2 if followed else 5))
+    rows += [dict(sport="soccer", entities=["ARS", "X"], stakes=0.0, rating=5),
+             dict(sport="soccer", entities=["A", "B"], stakes=0.0, rating=2)]
+    taste = calibrate_per_sport(pd.DataFrame(rows), UserProfile(followed_entities={"BOS", "ARS"}))
+    assert "nba" in taste.per_sport and taste.per_sport["nba"].followed_boost == 0.0  # refuted
+    assert "soccer" not in taste.per_sport                # < MIN_SPORT_RATINGS -> prior
+    assert taste.for_sport("soccer") is DEFAULT_WEIGHTS
+
+
+def test_recommender_applies_per_sport_weights() -> None:
+    # A followed-club boost for soccer must lift a soccer item even when nba is zeroed.
+    taste = SportTaste(per_sport={"nba": TasteWeights(followed_boost=0.0, stakes_boost=0.0)},
+                       default=TasteWeights(followed_boost=0.4, stakes_boost=0.0))
+    df = _unified()
+    rec = SportRecommender(df, weights=taste)
+    items = rec.generate_candidates(datetime(2023, 1, 1), datetime(2024, 12, 31))
+    user = UserProfile(followed_entities={"BOS"})
+    by_id = {s.item.item_id: s for s in rec.score(items, user)}
+    # nba items involving BOS get x1.0 (zeroed); a non-nba sport would use default 0.4
+    nba_bos = [s for s in by_id.values() if s.item.vertical == "nba"
+               and "BOS" in s.item.meta["entities"]]
+    assert nba_bos and all(abs(s.personalization - 1.0) < 1e-9 for s in nba_bos)
 
 
 def test_rank_orders_by_score_desc() -> None:

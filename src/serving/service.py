@@ -19,7 +19,7 @@ from src.media.book_recommender import BookRecommender
 from src.media.content import augment_catalog
 from src.media.music_recommender import MusicRecommender
 from src.media.recommender import AnimeRecommender
-from src.sports.personalize import DEFAULT_WEIGHTS, calibrate
+from src.sports.personalize import DEFAULT_WEIGHTS, SportTaste, calibrate_per_sport
 from src.sports.recommender import SportRecommender
 
 
@@ -68,12 +68,12 @@ class WatchlistService:
         effect immediately without restarting the app.
         """
         self.user = load_user_profile(self._configs)
-        self.weights = DEFAULT_WEIGHTS
+        self.taste = SportTaste(default=DEFAULT_WEIGHTS)
         if self.user.ratings:
             rated = self.df[self.df["item_id"].isin(self.user.ratings)].copy()
             rated["rating"] = rated["item_id"].map(self.user.ratings)
-            self.weights = calibrate(rated, self.user)
-        self.rec = SportRecommender(self.df, weights=self.weights)
+            self.taste = calibrate_per_sport(rated, self.user)   # each sport learns its own
+        self.rec = SportRecommender(self.df, weights=self.taste)
 
     # -- metadata for the UI ---------------------------------------------
 
@@ -88,8 +88,11 @@ class WatchlistService:
             }
         return {
             "followed": sorted(self.user.followed_entities),
-            "weights": {"followed_boost": self.weights.followed_boost,
-                        "stakes_boost": self.weights.stakes_boost},
+            "weights": {"followed_boost": self.taste.default.followed_boost,
+                        "stakes_boost": self.taste.default.stakes_boost},
+            "weights_by_sport": {
+                sport: {"followed_boost": w.followed_boost, "stakes_boost": w.stakes_boost}
+                for sport, w in self.taste.per_sport.items()},
             "calibrated_from_ratings": len(self.user.ratings),
             "date_min": self.df["date"].min().strftime("%Y-%m-%d"),
             "date_max": self.df["date"].max().strftime("%Y-%m-%d"),
