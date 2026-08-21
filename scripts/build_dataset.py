@@ -19,6 +19,7 @@ import yaml
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from src.media.anime_ingest import AnimeIngest  # noqa: E402
 from src.media.book_ingest import BookIngest  # noqa: E402
+from src.media.tmdb_ingest import TMDBIngest  # noqa: E402
 from src.sports.ingest import F1Ingest  # noqa: E402
 from src.sports.nba_ingest import NBAIngest  # noqa: E402
 from src.sports.soccer_ingest import SoccerIngest  # noqa: E402
@@ -50,6 +51,12 @@ def _build_book(cfg: dict):
     return df, "editions", ["item_id", "title", "author", "year", "editions", "subjects"]
 
 
+def _build_screen(cfg: dict):
+    df = TMDBIngest(media_type=cfg["vertical"], cache_dir=cfg.get("cache_dir", "data/tmdb_cache")).build(
+        pages=int(cfg.get("catalog_pages", 14)), min_votes=int(cfg.get("min_votes", 800)))
+    return df, "votes", ["item_id", "title", "kind", "year", "rating", "votes", "genres"]
+
+
 def _build_soccer(cfg: dict):
     df = SoccerIngest(cache_dir=cfg.get("cache_dir", "data/soccer_cache")).build(
         leagues=cfg["leagues"], seasons=cfg["seasons"])
@@ -58,12 +65,14 @@ def _build_soccer(cfg: dict):
 
 
 BUILDERS = {"f1": _build_f1, "nba": _build_nba, "anime": _build_anime,
-            "book": _build_book, "soccer": _build_soccer}
+            "book": _build_book, "soccer": _build_soccer,
+            "movie": _build_screen, "tv": _build_screen}
 
 # sports datasets are seasonal events; media is a catalog. Name the output and
 # the summary accordingly.
 _OUTPUT = {"f1": "f1_events.csv", "nba": "nba_events.csv", "soccer": "soccer_events.csv",
-           "anime": "anime_catalog.csv", "book": "books_catalog.csv"}
+           "anime": "anime_catalog.csv", "book": "books_catalog.csv",
+           "movie": "movies_catalog.csv", "tv": "tv_catalog.csv"}
 
 
 def main(config_path: str) -> None:

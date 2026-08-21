@@ -141,7 +141,7 @@
 const $ = s => document.querySelector(s);
 const esc = s => String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const pct = it => Math.min(99, Math.max(1, Math.round((it.score||0)*100)));
-const TAG = {f1:'F1', nba:'NBA', soccer:'SOCCER', anime:'ANIME', book:'BOOK', music:'MUSIC'};
+const TAG = {f1:'F1', nba:'NBA', soccer:'SOCCER', anime:'ANIME', book:'BOOK', music:'MUSIC', movie:'MOVIE', tv:'TV'};
 const why = it => (it.reasons&&it.reasons.length) ? it.reasons.join(' · ') : 'ranked on your taste';
 const crest = u => u ? `<img class="cr" src="${esc(u)}" alt="" onerror="this.style.visibility='hidden'">` : '';
 
@@ -229,8 +229,8 @@ function interleave(groups){
 
 async function load(){
   const j = f => fetch('./data/'+f).then(r=>r.json()).catch(()=>[]);
-  const [meta, upcoming, sports, anime, book, music] = await Promise.all(
-    ['meta.json','upcoming.json','sports.json','anime.json','book.json','music.json'].map(j));
+  const [meta, upcoming, sports, anime, book, music, movie, tv] = await Promise.all(
+    ['meta.json','upcoming.json','sports.json','anime.json','book.json','music.json','movie.json','tv.json'].map(j));
 
   renderHero((anime||[]).find(x=>x.image) || (music||[]).find(x=>x.image) || (anime||[])[0]);
 
@@ -240,12 +240,14 @@ async function load(){
   const topSp = sp => [...(sports||[])].filter(x=>x.sport===sp).sort((a,b)=>b.score-a.score);
   const groups = {
     anime:(anime||[]).slice(0,12), book:(book||[]).slice(0,10), music:(music||[]).slice(0,10),
+    movie:(movie||[]).slice(0,12), tv:(tv||[]).slice(0,12),
     soccer:topSp('soccer').slice(0,10), nba:topSp('nba').slice(0,8),
   };
-  const order=['anime','soccer','music','book','nba'];
+  const order=['movie','anime','soccer','tv','music','book','nba'];
   const ALL = interleave(order.map(k=>groups[k]||[]));
 
-  const verts=[['all','All'],['anime','Anime'],['soccer','Soccer'],['nba','NBA'],['book','Books'],['music','Music']]
+  const verts=[['all','All'],['movie','Movies'],['tv','TV'],['anime','Anime'],
+    ['soccer','Soccer'],['nba','NBA'],['book','Books'],['music','Music']]
     .filter(([v])=>v==='all'||(groups[v]&&groups[v].length));
   $('#filters').innerHTML = verts.map(([v,l],i)=>`<button data-v="${v}" aria-pressed="${i===0}">${l}</button>`).join('');
   const draw = f => $('#wall').innerHTML = (f==='all'?ALL:groups[f]||[]).map(tileHTML).join('') || '<p class="empty">Nothing here yet.</p>';

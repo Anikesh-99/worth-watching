@@ -28,8 +28,10 @@ from src.core.features import unify  # noqa: E402
 from src.core.profile import load_user_profile  # noqa: E402
 from src.media.book_recommender import BookRecommender  # noqa: E402
 from src.media.content import augment_catalog  # noqa: E402
+from src.media.movie_recommender import MovieRecommender  # noqa: E402
 from src.media.music_recommender import MusicRecommender  # noqa: E402
 from src.media.recommender import AnimeRecommender  # noqa: E402
+from src.media.tv_recommender import TVRecommender  # noqa: E402
 from src.sports.fixtures import collect_upcoming_fixtures  # noqa: E402
 from src.sports.personalize import DEFAULT_WEIGHTS  # noqa: E402
 from src.sports.recommender import SportRecommender  # noqa: E402
@@ -95,7 +97,9 @@ def _image_lookup() -> dict:
     images: dict = {}
     for path, col in [("data/anime_catalog.csv", "image_url"),
                       ("data/books_catalog.csv", "image_url"),
-                      ("data/music_catalog.csv", "image_url")]:
+                      ("data/music_catalog.csv", "image_url"),
+                      ("data/movies_catalog.csv", "image_url"),
+                      ("data/tv_catalog.csv", "image_url")]:
         df = _load_csv(path)
         if df is not None and col in df.columns:
             for i, v in zip(df["item_id"], df[col].fillna("")):
@@ -148,6 +152,8 @@ def main() -> None:
         ("anime", "data/anime_catalog.csv", "configs/anime.yaml", AnimeRecommender, None),
         ("book", "data/books_catalog.csv", "configs/books.yaml", BookRecommender, None),
         ("music", "data/music_catalog.csv", "configs/music.yaml", MusicRecommender, "data/my_music_ratings.csv"),
+        ("movie", "data/movies_catalog.csv", "configs/movies.yaml", MovieRecommender, None),
+        ("tv", "data/tv_catalog.csv", "configs/tv.yaml", TVRecommender, None),
     ]
     media_meta = {}
     counts = {}

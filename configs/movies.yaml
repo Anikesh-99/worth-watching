@@ -1,0 +1,17 @@
+# Movies vertical (media) config — a sibling of anime.yaml/books.yaml sharing
+# the same ContentRecommender engine. Catalog via TMDB (free API key in .env as
+# TMDB_API_KEY); ratings via a Letterboxd/Trakt export later.
+
+vertical: movie
+
+cache_dir: data/tmdb_cache
+
+# How many discover pages (20 titles each) of the most-voted films to pull.
+catalog_pages: 16
+min_votes: 800
+
+# Cold-start genres (before your own ratings are imported).
+followed_entities:
+  - Science Fiction
+  - Thriller
+  - Drama

@@ -1,0 +1,15 @@
+# TV-shows vertical (media) config — sibling of movies.yaml, same TMDB ingest
+# and ContentRecommender engine (media_type = tv).
+
+vertical: tv
+
+cache_dir: data/tmdb_cache
+
+catalog_pages: 16
+min_votes: 500
+
+# Cold-start genres (before your own ratings are imported).
+followed_entities:
+  - Drama
+  - Sci-Fi & Fantasy
+  - Crime

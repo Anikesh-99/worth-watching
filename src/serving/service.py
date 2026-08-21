@@ -17,8 +17,10 @@ from src.core.features import unify
 from src.core.profile import load_user_profile
 from src.media.book_recommender import BookRecommender
 from src.media.content import augment_catalog
+from src.media.movie_recommender import MovieRecommender
 from src.media.music_recommender import MusicRecommender
 from src.media.recommender import AnimeRecommender
+from src.media.tv_recommender import TVRecommender
 from src.sports.personalize import DEFAULT_WEIGHTS, SportTaste, calibrate_per_sport
 from src.sports.recommender import SportRecommender
 
@@ -46,6 +48,8 @@ class WatchlistService:
             ("anime", "anime_catalog.csv", "configs/anime.yaml", "my_anime_ratings.csv", AnimeRecommender),
             ("book", "books_catalog.csv", "configs/books.yaml", "my_books_ratings.csv", BookRecommender),
             ("music", "music_catalog.csv", "configs/music.yaml", "my_music_ratings.csv", MusicRecommender),
+            ("movie", "movies_catalog.csv", "configs/movies.yaml", "my_movie_ratings.csv", MovieRecommender),
+            ("tv", "tv_catalog.csv", "configs/tv.yaml", "my_tv_ratings.csv", TVRecommender),
         ]
         for vertical, catalog_name, config, ratings_name, RecClass in media_specs:
             cp = d / catalog_name
