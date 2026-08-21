@@ -224,7 +224,16 @@ retrieval preserves quality — the drop-in point for a sharded ANN service at
 10M items. (The current ranker is quality-dominated, so embeddings serve
 taste-based discovery and *similar-items*, not pruning a quality-sorted list.)
 
-All six phases complete, four verticals live.
+**Film & TV vertical (TMDB).** Two more `ContentRecommender` verticals —
+**Movies** and **TV** — over one `TMDBIngest` (movies and shows share TMDB's
+discover/genre endpoints). Taste = TMDB genres, quality = community rating,
+posters from TMDB's keyless image CDN (hotlinked like the crests). Needs a free
+`TMDB_API_KEY` (`.env`); build with `scripts/build_dataset.py configs/movies.yaml`
+(and `configs/tv.yaml`). Movie ratings import in bulk from a Letterboxd export
+(`scripts/import_letterboxd.py`), mirroring the Goodreads path for books.
+
+All six phases complete, six verticals live (F1 · NBA · soccer · anime · books ·
+music · film & TV).
 
 ## At scale (what I'd build next, and why it isn't here)
 
@@ -282,7 +291,8 @@ src/serving/service.py     # loads data + calibrated weights, answers queries
 src/serving/app.py         # FastAPI: /api/meta, /api/watchlist, /api/media
 web/index.html             # self-contained 3-mode dashboard (no external assets)
 scripts/serve.py           # launch the dashboard
-scripts/recommend_{anime,books}.py # media recs; import_{mal,goodreads}.py import lists
+scripts/recommend_{anime,books}.py # media recs; import_{mal,goodreads,letterboxd}.py import ratings
+scripts/{make_ratings_template,merge_ratings}.py # one CSV to rate across verticals -> the right files
 scripts/build_static.py    # bake scores -> web_static/ for GitHub Pages
 tests/                     # 72 tests across sports + media verticals
 ```

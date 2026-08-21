@@ -41,6 +41,7 @@ class TMDBIngest:
             raise ValueError("media_type must be 'movie' or 'tv'")
         self.kind = media_type
         self.key = os.getenv("TMDB_API_KEY")
+        self._gmap: dict[int, str] | None = None
         self.cache = Path(cache_dir)
         self.cache.mkdir(parents=True, exist_ok=True)
         self._sess = requests.Session()
@@ -71,9 +72,23 @@ class TMDBIngest:
         time.sleep(0.25)
         return data
 
-    def _genre_map(self) -> dict[int, str]:
-        body = self._get(f"/genre/{self.kind}/list", {}, cache_key=f"{self.kind}_genres")
-        return {g["id"]: g["name"] for g in body.get("genres", [])}
+    def genre_map(self) -> dict[int, str]:
+        if self._gmap is None:
+            body = self._get(f"/genre/{self.kind}/list", {}, cache_key=f"{self.kind}_genres")
+            self._gmap = {g["id"]: g["name"] for g in body.get("genres", [])}
+        return self._gmap
+
+    def search(self, title: str, year: int | None = None) -> dict | None:
+        """First matching catalog row for a title (for importing external ratings)."""
+        params: dict = {"query": title, "language": "en-US", "include_adult": "false"}
+        if year:
+            params["year" if self.kind == "movie" else "first_air_date_year"] = int(year)
+        body = self._get(f"/search/{self.kind}", params)
+        for r in body.get("results", []):
+            row = self._row(r, self.genre_map())
+            if row:
+                return row
+        return None
 
     def _row(self, r: dict, genres: dict[int, str]) -> dict | None:
         tid = r.get("id")
@@ -101,7 +116,7 @@ class TMDBIngest:
         ones a user is most likely to have an opinion about — rather than obscure
         high-scorers. vote_average is kept as the quality prior.
         """
-        genres = self._genre_map()
+        genres = self.genre_map()
         rows: dict[str, dict] = {}
         for p in range(1, pages + 1):
             body = self._get(f"/discover/{self.kind}", {
