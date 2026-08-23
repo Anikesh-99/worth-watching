@@ -25,7 +25,8 @@ jobs:
         with:
           python-version: "3.12"
       - name: Install (build-static deps)
-        run: pip install -q pandas numpy lightgbm requests pyyaml
+        # scikit-learn is required since ContentRecommender builds SVD embeddings
+        run: pip install -q pandas numpy scikit-learn lightgbm requests pyyaml
       - name: Rebuild static bundle (fresh upcoming + latest committed data)
         run: python scripts/build_static.py
       - name: Commit if changed
